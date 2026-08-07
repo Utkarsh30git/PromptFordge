@@ -1,0 +1,39 @@
+:root{
+
+    /* Background */
+  
+    --bg:#0A0A0B;
+    --bg-alt:#101012;
+  
+    /* Surfaces */
+  
+    --surface:#151517;
+    --surface-2:#1B1B1E;
+  
+    /* Borders */
+  
+    --border:rgba(255,255,255,0.09);
+    --border-soft:rgba(255,255,255,0.05);
+  
+    /* Text */
+  
+    --text:#F5F4EF;
+    --text-dim:#9A9A9F;
+    --text-dimmer:#6B6B70;
+  
+    /* Brand */
+  
+    --amber:#FFB100;
+    --amber-soft:rgba(255,177,0,0.12);
+  
+    --teal:#2DD4BF;
+    --teal-soft:rgba(45,212,191,0.12);
+  
+    --green:#4ADE80;
+    --red:#F87171;
+  
+    /* Radius */
+  
+    --radius:14px;
+  
+  }
