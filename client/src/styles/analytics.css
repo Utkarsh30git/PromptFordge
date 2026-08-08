@@ -1,0 +1,80 @@
+/* ==========================================
+   ANALYTICS SECTION
+========================================== */
+
+.analytics-section {
+  padding: var(--space-xl) 0 var(--space-xxl);
+}
+
+.analytics-grid {
+  margin-top: var(--space-md);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.analytics-card {
+  background: #17171a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: clamp(16px, 13px + 0.8vw, 20px);
+
+  transition: 0.3s;
+}
+
+.analytics-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 184, 0, 0.16);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.analytics-label {
+  color: #7d7d84;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.analytics-value {
+  color: var(--text);
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.analytics-delta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-size: 12px;
+  font-weight: 600;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.analytics-delta.up {
+  color: var(--green);
+}
+
+.analytics-delta.down {
+  color: var(--red);
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 1024px) {
+  .analytics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}

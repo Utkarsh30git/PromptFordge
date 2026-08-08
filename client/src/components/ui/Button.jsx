@@ -6,7 +6,7 @@ const Button = ({
   disabled = false,
   onClick,
 }) => {
-  const base="btn inline-flex items-center justify-center";
+  const base = "btn inline-flex items-center justify-center";
 
   const variants = {
     amber: "btn-amber",
@@ -21,7 +21,6 @@ const Button = ({
       disabled={disabled}
       onClick={onClick}
       className={`${base} ${variants[variant]}`}
-      onClick={onClick}
     >
       {children}
     </button>

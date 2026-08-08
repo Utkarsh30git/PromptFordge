@@ -35,5 +35,32 @@
     /* Radius */
   
     --radius:14px;
-  
+
+    /* Layout widths (single source of truth — no hardcoded
+       max-width values should appear anywhere else) */
+
+    --container-width: 1180px;   /* section content (Hero, Workspace, Compare, ...) */
+    --nav-width: 1320px;         /* navbar is intentionally wider than section content */
+
+    /* Fluid spacing scale — replaces one-off px margins/paddings
+       so every section shares the same rhythm */
+
+    --space-md: clamp(1.25rem, 1rem + 1vw, 2.75rem);     /* was 44px */
+    --space-lg: clamp(2rem, 1.6rem + 1.8vw, 4.5rem);     /* was 72px/90px */
+    --space-xl: clamp(2.5rem, 1.9rem + 2.6vw, 6.25rem);  /* was 100px */
+    --space-xxl: clamp(3rem, 2.2rem + 3.5vw, 8.75rem);   /* was 140px */
+
+    /* Fluid type scale */
+
+    --hero-title-size: clamp(2.75rem, 1.6rem + 5.5vw, 5.625rem);     /* was 90px */
+    --section-title-size: clamp(1.75rem, 1.35rem + 1.9vw, 3.125rem); /* was 50px */
+
+    /* Breakpoints (documented here for reference — CSS has no
+       var() support inside @media, but keeping the numbers named
+       and centralized avoids silently-drifting magic numbers) */
+
+    /* --bp-laptop: 1279px */
+    /* --bp-tablet: 1024px */
+    /* --bp-mobile: 640px  */
+    /* --bp-nav:    860px  */
   }

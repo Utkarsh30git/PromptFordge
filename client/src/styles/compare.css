@@ -1,0 +1,116 @@
+/* ==========================================
+   COMPARE SECTION
+========================================== */
+
+.compare-section {
+  padding: clamp(70px, 50px + 10vw, 180px) 0;
+}
+
+.compare-grid {
+  margin-top: 70px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+/* ==========================================
+   COMPARE CARD
+========================================== */
+
+.compare-card {
+  position: relative;
+
+  background: #17171a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  padding: clamp(20px, 16px + 1.2vw, 28px);
+
+  transition: 0.3s;
+}
+
+.compare-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 184, 0, 0.16);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.compare-card.winner {
+  border-color: rgba(255, 184, 0, 0.35);
+}
+
+.winner-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  background: var(--amber);
+  color: #181103;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.compare-version {
+  color: #7d7d84;
+  font-size: 12px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.compare-text {
+  color: #d7d7dd;
+  font-size: clamp(14px, 12px + 0.4vw, 15.5px);
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.compare-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 16px;
+}
+
+.compare-stats div {
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-stats span {
+  font-size: 11px;
+  color: #767680;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.compare-stats strong {
+  font-size: clamp(17px, 15px + 0.5vw, 20px);
+  color: white;
+}
+
+.compare-card.winner .compare-stats div:last-child strong {
+  color: var(--amber);
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 640px) {
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-card {
+    padding: 22px;
+  }
+
+  .winner-badge {
+    top: 16px;
+    right: 16px;
+  }
+}

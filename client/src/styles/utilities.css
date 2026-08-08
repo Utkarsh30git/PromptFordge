@@ -1,0 +1,116 @@
+/* ==========================================
+   CONTAINER
+   Single layout primitive for section content.
+   Consumed by components/ui/Container.jsx.
+   (Previously duplicated: a `.container` rule lived
+   here unused while Container.jsx re-implemented the
+   same max-width/padding with Tailwind arbitrary values.)
+========================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 0.5rem + 2vw, 2rem); /* was: fixed px-8 (32px) */
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   BUTTON
+   Shared by Navbar + every landing section.
+========================================== */
+
+.btn {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+}
+
+.btn-ghost {
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-amber {
+  background: var(--amber);
+  color: #181103;
+}
+
+.btn-amber:hover {
+  background: #e6a000;
+}
+
+.btn-teal {
+  background: var(--teal);
+  color: #06231f;
+}
+
+.btn-teal:hover {
+  filter: brightness(1.08);
+}
+
+.btn-danger {
+  background: var(--red);
+  color: #2a0a0a;
+}
+
+.btn-danger:hover {
+  filter: brightness(1.08);
+}
+
+/* ==========================================
+   SECTION HEADING
+   Shared "kicker + title + description" block
+   used by Workspace and Compare sections.
+========================================== */
+
+.section-heading {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto var(--space-lg);
+  text-align: center;
+}
+
+.section-kicker {
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+
+.section-title {
+  font-size: var(--section-title-size);
+  font-weight: bold;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.section-description {
+  max-width: 600px;
+  margin: 28px auto 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+@media (max-width: 640px) {
+  .section-heading {
+    margin-bottom: var(--space-md);
+  }
+}
