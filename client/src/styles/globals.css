@@ -11,12 +11,17 @@
 
 /* Per-section styles */
 @import "./navbar.css";
+@import "./user-menu.css";
+@import "./app-shell.css";
+@import "./dashboard.css";
+@import "./app-pages.css";
 @import "./hero.css";
 @import "./workspace.css";
 @import "./compare.css";
 @import "./analytics.css";
 @import "./cta.css";
 @import "./footer.css";
+@import "./login.css";
 
 * {
   margin: 0;

@@ -1,0 +1,122 @@
+/* ==========================================
+   APP SHELL
+   Wraps every authenticated screen.
+========================================== */
+
+.app-shell {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.app-main {
+  padding-top: 72px; /* offset for fixed .app-nav */
+}
+
+/* ==========================================
+   APP NAVBAR
+   Distinct from the marketing Navbar: no marketing
+   links, always shows the authenticated user menu.
+========================================== */
+
+.app-nav {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+
+  height: 72px;
+
+  backdrop-filter: blur(16px);
+  background: rgba(10, 10, 11, 0.75);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.app-nav-inner {
+  max-width: var(--nav-width);
+  height: 100%;
+  margin: auto;
+  padding: 0 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.app-nav-links {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 14px;
+}
+
+.app-nav-inner .logo,
+.app-nav-actions {
+  flex-shrink: 0;
+}
+
+.app-nav-link {
+  padding: 8px 14px;
+  border-radius: 8px;
+
+  color: var(--text-dim);
+  transition: all 0.2s ease;
+}
+
+.app-nav-link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.app-nav-link.active {
+  color: var(--text);
+  background: var(--amber-soft);
+}
+
+.app-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 860px) {
+  .app-nav-inner {
+    padding: 0 clamp(1rem, 0.5rem + 2vw, 2rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-nav-links {
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .app-nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app-nav-link {
+    padding: 8px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-nav-link {
+    padding: 7px 8px;
+    font-size: 12.5px;
+  }
+}

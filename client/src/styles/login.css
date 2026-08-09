@@ -1,0 +1,186 @@
+/* ==========================================
+   LOGIN
+========================================== */
+
+.login-page {
+  position: relative;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+}
+
+/* Reuses .grid-background / .spotlight from hero.css so the
+   login page shares the exact same background treatment as
+   the landing page. */
+
+.login-page .grid-background {
+  position: fixed;
+}
+
+.login-page .spotlight {
+  position: fixed;
+  top: -320px;
+}
+
+/* ==========================================
+   MINIMAL BRANDING BAR
+========================================== */
+
+.login-topbar {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  padding: 28px clamp(1rem, 0.5rem + 2vw, 2rem);
+}
+
+.login-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================
+   CENTERED CARD
+========================================== */
+
+.login-center {
+  position: relative;
+  z-index: 2;
+
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: clamp(1rem, 0.5rem + 3vw, 2.5rem);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+
+  padding: clamp(28px, 22px + 2vw, 40px) clamp(20px, 16px + 1.5vw, 32px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+
+  background: linear-gradient(180deg, #18181b 0%, #121214 100%);
+  backdrop-filter: blur(30px);
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 177, 0, 0.04),
+    0 0 60px rgba(255, 177, 0, 0.05);
+}
+
+.login-kicker {
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 18px;
+}
+
+.login-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 280px;
+  margin-bottom: 30px;
+}
+
+/* ==========================================
+   GOOGLE BUTTON CONTAINER
+========================================== */
+
+.login-google-wrap {
+  width: 100%;
+  max-width: 288px;
+
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+
+  transition: border-color 0.25s ease;
+}
+
+.login-google-wrap:hover {
+  border-color: rgba(255, 177, 0, 0.22);
+}
+
+/* ==========================================
+   DIVIDER
+========================================== */
+
+.login-divider {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin: 26px 0 18px;
+
+  color: var(--text-dimmer);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-soft);
+}
+
+.login-footnote {
+  font-size: 12.5px;
+  color: var(--text-dimmer);
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 480px) {
+  .login-card {
+    max-width: 100%;
+    border-radius: 18px;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
+}
