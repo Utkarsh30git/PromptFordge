@@ -1,15 +1,13 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import Container from "../../components/ui/Container";
 import Button from "../../components/ui/Button";
 import useAuthStore from "../../store/authStore";
-
-import {
-  OVERVIEW_STATS,
-  RECENT_PROMPTS,
-  RECENT_ACTIVITY,
-} from "./dashboardData";
+import * as analyticsApi from "../../services/analyticsApi";
+import * as promptsApi from "../../services/promptsApi";
+import { formatRelativeTime } from "../../utils/relativeTime";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -25,6 +23,27 @@ const getGreeting = () => {
   if (hour < 12) return "Good morning";
   if (hour < 18) return "Good afternoon";
   return "Good evening";
+};
+
+const formatTokens = (tokens) => {
+  if (tokens === null || tokens === undefined) return "—";
+  return tokens.toLocaleString();
+};
+
+const formatCost = (cost) => {
+  if (cost === null || cost === undefined) return "—";
+  return `$${cost.toFixed(4)}`;
+};
+
+const formatScore = (score) => {
+  if (score === null || score === undefined) return "—";
+  return score.toFixed(1);
+};
+
+const ACTIVITY_LABELS = {
+  run: "Prompt executed",
+  optimize: "Prompt optimized",
+  compare: "Comparison completed",
 };
 
 const QUICK_ACTIONS = [
@@ -59,6 +78,42 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const firstName = user?.name?.split(" ")[0] || "there";
+
+  // Reuses the same analytics aggregation and API client the
+  // Analytics page uses — a fixed 30-day snapshot, independent of
+  // whatever time range the user may have selected on that page.
+  const [overview, setOverview] = useState(null);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [recentPrompts, setRecentPrompts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const [analytics, prompts] = await Promise.all([
+          analyticsApi.getAnalytics("30d"),
+          promptsApi.listPrompts(),
+        ]);
+
+        if (cancelled) return;
+
+        setOverview(analytics.overview);
+        setRecentActivity(analytics.recentActivity.slice(0, 4));
+        setRecentPrompts(prompts.slice(0, 3));
+      } catch (err) {
+        console.error("Failed to load dashboard data:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="dashboard-page">
@@ -102,12 +157,30 @@ const Dashboard = () => {
           <p className="dashboard-section-label mono">Overview</p>
 
           <div className="dashboard-stats-grid">
-            {OVERVIEW_STATS.map((stat) => (
-              <div className="analytics-card" key={stat.label}>
-                <div className="analytics-label">{stat.label}</div>
-                <div className="analytics-value">{stat.value}</div>
+            <div className="analytics-card">
+              <div className="analytics-label">Total Runs</div>
+              <div className="analytics-value">
+                {loading ? "—" : overview?.totalRuns ?? 0}
               </div>
-            ))}
+            </div>
+            <div className="analytics-card">
+              <div className="analytics-label">Tokens Used</div>
+              <div className="analytics-value">
+                {loading ? "—" : formatTokens(overview?.totalTokens)}
+              </div>
+            </div>
+            <div className="analytics-card">
+              <div className="analytics-label">Estimated Cost</div>
+              <div className="analytics-value">
+                {loading ? "—" : formatCost(overview?.totalCost)}
+              </div>
+            </div>
+            <div className="analytics-card">
+              <div className="analytics-label">Avg Score</div>
+              <div className="analytics-value">
+                {loading ? "—" : formatScore(overview?.avgQuality)}
+              </div>
+            </div>
           </div>
         </motion.section>
 
@@ -122,26 +195,33 @@ const Dashboard = () => {
           >
             <p className="dashboard-section-label mono">Recent Prompts</p>
 
-            <div className="prompt-list">
-              {RECENT_PROMPTS.map((prompt) => (
-                <div className="prompt-list-item" key={prompt.id}>
-                  <div className="prompt-list-main">
-                    <span className="prompt-list-name">{prompt.name}</span>
-                    <span className="prompt-list-meta">
-                      <span className="editor-chip">{prompt.version}</span>
-                      Last edited {prompt.editedAgo}
-                    </span>
-                  </div>
+            {!loading && recentPrompts.length === 0 && (
+              <p className="panel-empty-hint">
+                No prompts yet — create one in the Workspace.
+              </p>
+            )}
 
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate("/workspace")}
-                  >
-                    Open
-                  </Button>
-                </div>
-              ))}
-            </div>
+            {recentPrompts.length > 0 && (
+              <div className="prompt-list">
+                {recentPrompts.map((prompt) => (
+                  <div className="prompt-list-item" key={prompt._id}>
+                    <div className="prompt-list-main">
+                      <span className="prompt-list-name">{prompt.title}</span>
+                      <span className="prompt-list-meta">
+                        Last edited {formatRelativeTime(prompt.updatedAt)}
+                      </span>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate("/workspace")}
+                    >
+                      Open
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.section>
 
           <motion.section
@@ -153,18 +233,32 @@ const Dashboard = () => {
           >
             <p className="dashboard-section-label mono">Recent Activity</p>
 
-            <div className="activity-list">
-              {RECENT_ACTIVITY.map((item) => (
-                <div className="activity-item" key={item.id}>
-                  <span className="activity-dot" />
-                  <div className="activity-main">
-                    <span className="activity-label">{item.label}</span>
-                    <span className="activity-detail">{item.detail}</span>
+            {!loading && recentActivity.length === 0 && (
+              <p className="panel-empty-hint">
+                Run, optimize, or compare a prompt to see activity here.
+              </p>
+            )}
+
+            {recentActivity.length > 0 && (
+              <div className="activity-list">
+                {recentActivity.map((item, i) => (
+                  <div className="activity-item" key={i}>
+                    <span className="activity-dot" />
+                    <div className="activity-main">
+                      <span className="activity-label">
+                        {ACTIVITY_LABELS[item.type] || item.type}
+                      </span>
+                      <span className="activity-detail">
+                        {item.promptTitle}
+                      </span>
+                    </div>
+                    <span className="activity-time">
+                      {formatRelativeTime(item.createdAt)}
+                    </span>
                   </div>
-                  <span className="activity-time">{item.timeAgo}</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </motion.section>
         </div>
 

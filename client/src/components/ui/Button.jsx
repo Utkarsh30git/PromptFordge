@@ -5,6 +5,7 @@ const Button = ({
   type = "button",
   disabled = false,
   onClick,
+  ...rest
 }) => {
   const base = "btn inline-flex items-center justify-center";
 
@@ -17,6 +18,7 @@ const Button = ({
 
   return (
     <button
+      {...rest}
       type={type}
       disabled={disabled}
       onClick={onClick}

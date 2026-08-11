@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
+import collectionRoutes from "./routes/collectionRoutes.js";
+import promptRoutes from "./routes/promptRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 
 
 
@@ -25,6 +28,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/collections", collectionRoutes);
+app.use("/api/prompts", promptRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
   res.json({
