@@ -707,6 +707,224 @@
 }
 
 /* ==========================================
+   QUALITY PANEL
+   Sits below the response panel, inside the same .editor-panel
+   column — same nesting/visibility rule as .response-panel and
+   .variables-panel: only meaningfully rendered while a prompt is
+   selected, otherwise the editor looks exactly as it did before
+   this feature existed. Advisory only: nothing here writes to the
+   database, the editor, or versions except via the existing
+   Optimize action it delegates to.
+========================================== */
+
+.quality-panel {
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 18px;
+}
+
+.quality-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.quality-panel-title {
+  font-size: 11px;
+  color: #73737b;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.quality-reanalyze-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.quality-reanalyze-btn:hover {
+  color: var(--amber);
+}
+
+.quality-reanalyze-btn:disabled {
+  color: var(--text-dimmer);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.quality-loading {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.quality-empty-state,
+.quality-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #17171a;
+  padding: 16px 18px;
+}
+
+.quality-empty-message,
+.quality-error-message {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.quality-error-message {
+  color: #ff8b8b;
+}
+
+.quality-overall {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.quality-overall-label {
+  font-size: 11px;
+  color: #73737b;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.quality-overall-score {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.quality-overall-max {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dimmer);
+  margin-left: 2px;
+}
+
+/* Low / Medium / Strong bands — reuse the existing theme palette
+   only (red / amber / teal), never new colors. */
+.quality-tone-low {
+  color: var(--red);
+}
+
+.quality-tone-medium {
+  color: var(--amber);
+}
+
+.quality-tone-strong {
+  color: var(--teal);
+}
+
+.quality-tone-bg-low {
+  background: var(--red);
+}
+
+.quality-tone-bg-medium {
+  background: var(--amber);
+}
+
+.quality-tone-bg-strong {
+  background: var(--teal);
+}
+
+.quality-dims {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.quality-dim-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+.quality-dim-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quality-dim-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #26262a;
+  overflow: hidden;
+}
+
+.quality-dim-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.quality-dim-value {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.quality-summary {
+  margin-bottom: 20px;
+}
+
+.quality-section-label {
+  font-size: 11px;
+  color: #73737b;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.quality-summary-text {
+  margin: 0;
+  color: #d8d8dc;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.quality-suggestions {
+  margin-bottom: 20px;
+}
+
+.quality-suggestions-list {
+  margin: 0;
+  padding-left: 18px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  color: #d8d8dc;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.quality-panel-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* ==========================================
    CODE EDITOR
 ========================================== */
 
@@ -921,5 +1139,10 @@
 
   .variables-list {
     grid-template-columns: 1fr;
+  }
+
+  .quality-dim-row {
+    grid-template-columns: 92px 1fr 36px;
+    gap: 8px;
   }
 }

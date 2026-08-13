@@ -28,29 +28,9 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
-.user-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.user-avatar-fallback {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: var(--amber-soft);
-  color: var(--amber);
-  font-size: 12.5px;
-  font-weight: 700;
-}
+/* Avatar rules (.user-avatar / .user-avatar-fallback) now live as
+   the shared .avatar-image / .avatar-fallback classes in
+   utilities.css, used via components/ui/UserAvatar.jsx. */
 
 .user-name {
   font-size: 14px;

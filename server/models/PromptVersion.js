@@ -16,6 +16,7 @@ const promptVersionSchema = new mongoose.Schema({
   content: {
     type: String,
     required: true,
+    maxlength: 20_000,
   },
 
   createdAt: {

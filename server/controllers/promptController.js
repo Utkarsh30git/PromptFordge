@@ -2,29 +2,59 @@ import Prompt from "../models/Prompt.js";
 import PromptVersion from "../models/PromptVersion.js";
 import Collection from "../models/Collection.js";
 import User from "../models/User.js";
-import { runPrompt as callOpenAI, optimizePrompt as callOpenAIOptimize } from "../services/openaiService.js";
+import {
+  runPrompt as callOpenAI,
+  optimizePrompt as callOpenAIOptimize,
+  analyzePromptQuality as callOpenAIAnalyze,
+} from "../services/openaiService.js";
 import {
   DEFAULT_MODEL,
   isSupportedModel,
   getSupportedModels,
   calculateCost,
 } from "../config/modelPricing.js";
+import { calculateOverallScore } from "../config/qualityScoring.js";
 import { isValidObjectId, findOwnedPrompt } from "../utils/promptOwnership.js";
+import { reserveCredit, refundCredit } from "../utils/credits.js";
 import PromptRun from "../models/PromptRun.js";
 import { extractVariables, findMissingVariables, resolveVariables } from "../utils/promptVariables.js";
+
+const MAX_TITLE_LENGTH = 200;
+const MAX_PROMPT_CONTENT_LENGTH = 20_000;
+const MAX_VARIABLE_KEYS = 50;
+const MAX_VARIABLE_VALUE_LENGTH = 5_000;
+
+// Shared by run/optimize/analyze error handling — the three OpenAI-
+// backed actions in this controller all map service error codes to
+// the same HTTP status/message pairs.
+const mapOpenAIErrorStatus = (err) => {
+  if (err.code === "TIMEOUT") return 504;
+  if (err.code === "MISSING_API_KEY") return 500;
+  return 502;
+};
+
+const mapOpenAIErrorMessage = (err) => {
+  if (err.code === "TIMEOUT") return "The AI request timed out. Please try again.";
+  if (err.code === "MISSING_API_KEY") return "AI execution is not configured on the server yet.";
+  return "The AI provider failed to respond. Please try again.";
+};
 
 // Coerces the client-submitted `variables` object into a plain
 // { name: string } map. Anything that isn't a plain object, or whose
 // values aren't strings/numbers, is dropped rather than trusted —
 // this only ever feeds a string replace, but we still don't want
-// stray objects/arrays flowing into resolution or logging.
+// stray objects/arrays flowing into resolution or logging. Also
+// bounds how many keys and how long each value can be, so a
+// malicious/oversized payload can't bloat a request or (since these
+// values flow into the OpenAI call) inflate token usage/cost.
 const sanitizeVariableValues = (raw) => {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
 
   const values = {};
   for (const [name, value] of Object.entries(raw)) {
+    if (Object.keys(values).length >= MAX_VARIABLE_KEYS) break;
     if (typeof value === "string" || typeof value === "number") {
-      values[name] = String(value);
+      values[name] = String(value).slice(0, MAX_VARIABLE_VALUE_LENGTH);
     }
   }
   return values;
@@ -81,6 +111,12 @@ export const createPrompt = async (req, res) => {
   try {
     const { title, collection: collectionId } = req.body;
 
+    if (typeof title === "string" && title.trim().length > MAX_TITLE_LENGTH) {
+      return res.status(400).json({
+        message: `Title must be ${MAX_TITLE_LENGTH} characters or fewer`,
+      });
+    }
+
     const failed = await validateOwnedCollectionId(collectionId, req.userId, res);
     if (failed) return;
 
@@ -104,10 +140,29 @@ export const createPrompt = async (req, res) => {
   }
 };
 
-// GET /api/prompts?collection=<id>
+// Recognized values for ?sort= on GET /api/prompts. Keeping this as an
+// explicit map (rather than trusting an arbitrary field name from the
+// query string) avoids exposing sort-by-anything on a Mongo query.
+const SORT_OPTIONS = {
+  newest: { updatedAt: -1 },
+  oldest: { updatedAt: 1 },
+  name_asc: { title: 1 },
+  name_desc: { title: -1 },
+};
+
+// "Recent" filter window for the Library's Recent tab — prompts
+// touched (created or saved) in the last 14 days.
+const RECENT_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+
+// Escapes a string for safe use inside a RegExp — search is
+// user-controlled free text, so it must never be interpreted as a
+// regex pattern itself.
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// GET /api/prompts?collection=<id>&search=<q>&filter=all|favorites|recent&sort=newest|oldest|name_asc|name_desc
 export const getPrompts = async (req, res) => {
   try {
-    const { collection: collectionId } = req.query;
+    const { collection: collectionId, search, filter, sort } = req.query;
     const query = { userId: req.userId };
 
     if (collectionId) {
@@ -117,16 +172,81 @@ export const getPrompts = async (req, res) => {
       query.collectionId = collectionId;
     }
 
-    const prompts = await Prompt.find(query).sort({ updatedAt: -1 });
+    if (search && typeof search === "string" && search.trim()) {
+      // Client-side filtering also works fine at small scale, but
+      // doing it server-side here means it's already in place if/when
+      // the dataset grows past what's comfortable to ship to the client.
+      const pattern = new RegExp(escapeRegex(search.trim()), "i");
+      query.$or = [{ title: pattern }, { content: pattern }];
+    }
+
+    if (filter === "favorites") {
+      query.isFavorite = true;
+    } else if (filter === "recent") {
+      query.updatedAt = { $gte: new Date(Date.now() - RECENT_WINDOW_MS) };
+    }
+
+    const sortSpec = SORT_OPTIONS[sort] || SORT_OPTIONS.newest;
+
+    const prompts = await Prompt.find(query).sort(sortSpec);
+
+    // The Library card shows which version a prompt is on. Fetched in
+    // one grouped query rather than N+1 per-prompt lookups.
+    const promptIds = prompts.map((p) => p._id);
+    const latestVersions = await PromptVersion.aggregate([
+      { $match: { promptId: { $in: promptIds } } },
+      { $group: { _id: "$promptId", latestVersionNumber: { $max: "$versionNumber" } } },
+    ]);
+    const versionByPromptId = new Map(
+      latestVersions.map((v) => [String(v._id), v.latestVersionNumber])
+    );
+
+    const promptsWithVersion = prompts.map((p) => ({
+      ...p.toObject(),
+      latestVersionNumber: versionByPromptId.get(String(p._id)) || null,
+    }));
 
     return res.status(200).json({
-      prompts,
+      prompts: promptsWithVersion,
     });
   } catch (error) {
     console.error("Get prompts error:", error);
 
     return res.status(500).json({
       message: "Failed to load prompts",
+    });
+  }
+};
+
+// PUT /api/prompts/:id/favorite
+// Dedicated, lightweight endpoint for the Library's star toggle so a
+// favorite/unfavorite click never needs to round-trip full prompt
+// metadata (title/collection) the way PUT /:id does.
+export const setFavorite = async (req, res) => {
+  try {
+    const prompt = await findOwnedPrompt(req.params.id, req.userId);
+
+    if (!prompt) {
+      return res.status(404).json({ message: "Prompt not found" });
+    }
+
+    const { isFavorite } = req.body;
+    if (typeof isFavorite !== "boolean") {
+      return res.status(400).json({ message: "isFavorite must be a boolean" });
+    }
+
+    prompt.isFavorite = isFavorite;
+    await prompt.save();
+
+    return res.status(200).json({
+      message: isFavorite ? "Added to favorites" : "Removed from favorites",
+      prompt,
+    });
+  } catch (error) {
+    console.error("Set favorite error:", error);
+
+    return res.status(500).json({
+      message: "Failed to update favorite",
     });
   }
 };
@@ -162,6 +282,12 @@ export const updatePrompt = async (req, res) => {
     }
 
     const { title, collection: collectionId } = req.body;
+
+    if (typeof title === "string" && title.trim().length > MAX_TITLE_LENGTH) {
+      return res.status(400).json({
+        message: `Title must be ${MAX_TITLE_LENGTH} characters or fewer`,
+      });
+    }
 
     if (collectionId !== undefined) {
       const failed = await validateOwnedCollectionId(collectionId, req.userId, res);
@@ -229,6 +355,18 @@ export const savePromptVersion = async (req, res) => {
 
     if (content === undefined || content === null) {
       return res.status(400).json({ message: "Content is required" });
+    }
+
+    if (typeof content !== "string" || content.length > MAX_PROMPT_CONTENT_LENGTH) {
+      return res.status(400).json({
+        message: `Content must be ${MAX_PROMPT_CONTENT_LENGTH.toLocaleString()} characters or fewer`,
+      });
+    }
+
+    if (typeof title === "string" && title.trim().length > MAX_TITLE_LENGTH) {
+      return res.status(400).json({
+        message: `Title must be ${MAX_TITLE_LENGTH} characters or fewer`,
+      });
     }
 
     const lastVersion = await PromptVersion.findOne({
@@ -348,7 +486,9 @@ export const runPromptExecution = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Never spend a credit on a request that hasn't even reached OpenAI yet.
+    // Fast, cheap pre-check — avoids a wasted OpenAI call for a user
+    // who's obviously out of credits. This alone can't prevent a
+    // race between two concurrent requests, though — see reserveCredit.
     if (user.credits <= 0) {
       return res.status(402).json({
         message: "You're out of credits. Upgrade your plan to keep running prompts.",
@@ -361,6 +501,17 @@ export const runPromptExecution = async (req, res) => {
       });
     }
 
+    // Atomically reserve the credit BEFORE calling OpenAI. This is
+    // what actually closes the concurrent-request race the pre-check
+    // above can't: if two requests land at once with 1 credit left,
+    // only one of these atomic decrements can succeed.
+    const reservedUser = await reserveCredit(req.userId);
+    if (!reservedUser) {
+      return res.status(402).json({
+        message: "You're out of credits. Upgrade your plan to keep running prompts.",
+      });
+    }
+
     const startedAt = Date.now();
     let result;
 
@@ -368,6 +519,8 @@ export const runPromptExecution = async (req, res) => {
       result = await callOpenAI({ prompt: resolvedContent, model, temperature });
     } catch (err) {
       console.error("OpenAI run error:", err.message);
+      // The reservation didn't pay off — give the credit back.
+      await refundCredit(req.userId);
 
       if (err.code === "TIMEOUT") {
         return res.status(504).json({
@@ -389,9 +542,8 @@ export const runPromptExecution = async (req, res) => {
     const latencyMs = Date.now() - startedAt;
     const cost = calculateCost(model, result.usage);
 
-    // Credit is only deducted once we know the run genuinely succeeded.
-    user.credits -= 1;
-    await user.save();
+    // Credit was already atomically deducted by reserveCredit above —
+    // reservedUser.credits is the correct post-deduction balance.
 
     await logPromptRun({
       userId: req.userId,
@@ -417,7 +569,7 @@ export const runPromptExecution = async (req, res) => {
       promptTokens: result.usage?.prompt_tokens ?? null,
       completionTokens: result.usage?.completion_tokens ?? null,
       cost,
-      creditsRemaining: user.credits,
+      creditsRemaining: reservedUser.credits,
       resolvedPrompt: resolvedContent,
     });
   } catch (error) {
@@ -462,7 +614,6 @@ export const optimizePromptExecution = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Never spend a credit on a request that hasn't even reached OpenAI yet.
     if (user.credits <= 0) {
       return res.status(402).json({
         message: "You're out of credits. Upgrade your plan to keep optimizing prompts.",
@@ -475,6 +626,16 @@ export const optimizePromptExecution = async (req, res) => {
       });
     }
 
+    // Atomically reserve the credit before calling OpenAI — see
+    // utils/credits.js for why this (not a plain check-then-save) is
+    // what actually prevents concurrent requests from overspending.
+    const reservedUser = await reserveCredit(req.userId);
+    if (!reservedUser) {
+      return res.status(402).json({
+        message: "You're out of credits. Upgrade your plan to keep optimizing prompts.",
+      });
+    }
+
     const startedAt = Date.now();
     let result;
 
@@ -482,6 +643,7 @@ export const optimizePromptExecution = async (req, res) => {
       result = await callOpenAIOptimize({ prompt: content, model });
     } catch (err) {
       console.error("OpenAI optimize error:", err.message);
+      await refundCredit(req.userId);
 
       if (err.code === "TIMEOUT") {
         return res.status(504).json({
@@ -516,10 +678,6 @@ export const optimizePromptExecution = async (req, res) => {
       );
     }
 
-    // Credit is only deducted once we know the run genuinely succeeded.
-    user.credits -= 1;
-    await user.save();
-
     await logPromptRun({
       userId: req.userId,
       promptId: prompt._id,
@@ -541,13 +699,137 @@ export const optimizePromptExecution = async (req, res) => {
       latency: latencyMs,
       tokens: result.usage?.total_tokens ?? null,
       cost,
-      creditsRemaining: user.credits,
+      creditsRemaining: reservedUser.credits,
     });
   } catch (error) {
     console.error("Optimize prompt error:", error);
 
     return res.status(500).json({
       message: "Failed to optimize prompt",
+    });
+  }
+};
+
+// POST /api/prompts/:id/analyze
+// Analyzes the PROMPT ITSELF (clarity, specificity, context,
+// structure, output definition) — a distinct concept from Run
+// (executes the prompt) and Compare's judge (scores a RESPONSE).
+// Purely advisory: never touches the saved prompt/version, and is
+// deliberately NOT logged as a PromptRun, since it isn't a real
+// "execution" — Analytics/recent-activity should not count it as one.
+//
+// Respects whichever version the user is currently viewing: an
+// optional versionId in the body is looked up (and ownership-checked
+// via promptId) the same way Compare does; omitting it falls back to
+// the latest saved version, matching Run/Optimize's default.
+export const analyzePromptExecution = async (req, res) => {
+  try {
+    const prompt = await findOwnedPrompt(req.params.id, req.userId);
+
+    if (!prompt) {
+      return res.status(404).json({ message: "Prompt not found" });
+    }
+
+    const { versionId } = req.body || {};
+
+    let content;
+
+    if (versionId !== undefined && versionId !== null && versionId !== "") {
+      if (!isValidObjectId(versionId)) {
+        return res.status(400).json({ message: "Invalid version id" });
+      }
+
+      const version = await PromptVersion.findOne({
+        _id: versionId,
+        promptId: prompt._id,
+      });
+
+      if (!version) {
+        return res.status(404).json({ message: "Version not found" });
+      }
+
+      content = version.content;
+    } else {
+      const latestVersion = await PromptVersion.findOne({
+        promptId: prompt._id,
+      }).sort({ versionNumber: -1 });
+
+      content = latestVersion ? latestVersion.content : prompt.content;
+    }
+
+    content = (content || "").trim();
+    if (!content) {
+      return res.status(400).json({
+        message:
+          "This prompt has no saved content to analyze. Write something and save a version first.",
+      });
+    }
+
+    const model = DEFAULT_MODEL;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.credits <= 0) {
+      return res.status(402).json({
+        message: "You're out of credits. Upgrade your plan to keep analyzing prompts.",
+      });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({
+        message: "AI execution is not configured on the server yet.",
+      });
+    }
+
+    // Atomically reserve the credit before calling OpenAI — see
+    // utils/credits.js for why this (not a plain check-then-save) is
+    // what actually prevents concurrent requests from overspending.
+    const reservedUser = await reserveCredit(req.userId);
+    if (!reservedUser) {
+      return res.status(402).json({
+        message: "You're out of credits. Upgrade your plan to keep analyzing prompts.",
+      });
+    }
+
+    let result;
+    try {
+      result = await callOpenAIAnalyze({ prompt: content, model });
+    } catch (err) {
+      console.error("OpenAI analyze error:", err.message);
+      await refundCredit(req.userId);
+
+      if (err.code === "ANALYSIS_INVALID_RESPONSE") {
+        return res.status(502).json({
+          message: "Unable to analyze this prompt right now. Please try again.",
+        });
+      }
+
+      return res.status(mapOpenAIErrorStatus(err)).json({
+        message: mapOpenAIErrorMessage(err),
+      });
+    }
+
+    // The model supplies dimension scores only — the overall score is
+    // always computed here, deterministically, from a single weights
+    // config, never trusted from (or invented to match) the model.
+    const overallScore = calculateOverallScore(result.scores);
+
+    return res.status(200).json({
+      overallScore,
+      scores: result.scores,
+      summary: result.summary,
+      suggestions: result.suggestions,
+      model: result.model,
+      creditsRemaining: reservedUser.credits,
+    });
+  } catch (error) {
+    console.error("Analyze prompt error:", error);
+
+    return res.status(500).json({
+      message: "Failed to analyze this prompt",
     });
   }
 };

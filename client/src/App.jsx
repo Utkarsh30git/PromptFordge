@@ -10,6 +10,9 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Prompts from "./pages/Prompts";
+import Collections from "./pages/Collections";
+import CollectionDetail from "./pages/CollectionDetail";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AppLayout from "./layouts/AppLayout";
@@ -36,6 +39,10 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/prompts" element={<Prompts />} />
+          <Route path="/prompts/collections" element={<Collections />} />
+          <Route path="/prompts/collections/:id" element={<CollectionDetail />} />
+          <Route path="/prompts/:id" element={<Workspace />} />
           <Route path="/workspace" element={<Workspace />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/analytics" element={<Analytics />} />

@@ -1,0 +1,176 @@
+/* ==========================================
+   VERSION HISTORY PANEL
+   Reuses the .optimize-overlay / .optimize-modal / .optimize-modal-*
+   overlay+card recipe from workspace.css — same dark blurred backdrop,
+   gradient card, and footer layout, just narrower and single-column
+   since this is a list rather than a two-up diff.
+========================================== */
+
+.version-history-modal {
+  max-width: 560px;
+}
+
+.version-history-body {
+  padding: 8px 8px 4px;
+  overflow-y: auto;
+}
+
+.version-history-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px 16px;
+}
+
+.version-history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.version-history-item {
+  padding: 14px 16px;
+}
+
+.version-history-item + .version-history-item {
+  border-top: 1px solid var(--border-soft);
+}
+
+.version-history-item.current {
+  background: rgba(255, 177, 0, 0.04);
+  border-radius: 12px;
+}
+
+.version-history-item-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.version-history-item-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 14px;
+  color: var(--text);
+}
+
+.version-history-current-badge {
+  padding: 2px 9px;
+  border-radius: 999px;
+
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.version-history-item-time {
+  font-size: 12px;
+  color: var(--text-dimmer);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.version-history-item-preview {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================
+   EXPANDED PREVIEW
+========================================== */
+
+.version-history-preview {
+  margin-top: 12px;
+  padding: 14px;
+
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: #131315;
+}
+
+.version-history-preview-content {
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+
+.version-history-preview-variables {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.version-history-preview-variables-label {
+  font-size: 10.5px;
+  color: var(--text-dimmer);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.version-history-preview-created {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.version-history-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.version-history-confirm {
+  padding-top: 4px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.version-history-confirm-text {
+  margin: 10px 0 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 640px) {
+  .version-history-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .version-history-preview-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .version-history-preview-actions .btn {
+    width: 100%;
+  }
+}

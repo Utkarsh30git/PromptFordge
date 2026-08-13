@@ -130,6 +130,17 @@ const useCompareStore = create((set, get) => ({
   },
   setTestInput: (value) => set({ testInput: value }),
 
+  // Pre-selects a prompt + two versions to compare — used when Compare
+  // is launched from elsewhere (e.g. the Workspace's Version History
+  // panel: "Current vs Selected") instead of picked manually on this
+  // page. Reuses selectPrompt for the version fetch so there's still
+  // exactly one place that loads versions for comparison.
+  startComparison: async ({ promptId, versionAId, versionBId }) => {
+    await get().selectPrompt(promptId);
+    set({ versionAId, versionBId, result: null, compareError: null });
+    get()._recomputeVariables();
+  },
+
   runCompare: async () => {
     const {
       selectedPromptId,

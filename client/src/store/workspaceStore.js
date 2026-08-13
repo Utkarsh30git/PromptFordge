@@ -34,6 +34,14 @@ const useWorkspaceStore = create((set, get) => ({
   resolvedPrompt: null, // last-resolved preview, shown post-run
   missingVariables: [], // names still unset — blocks Run when non-empty
 
+  // Version History panel (Workspace) — surfaces the SAME `versions`
+  // array already loaded by selectPrompt/openPromptDirect. Opening it
+  // is purely a UI toggle; it deliberately does NOT trigger a new
+  // fetch, since the versions are already in state.
+  versionHistoryOpen: false,
+  restoringVersion: false,
+  restoreError: null,
+
   saving: false,
   error: null,
 
@@ -49,6 +57,14 @@ const useWorkspaceStore = create((set, get) => ({
   optimizedPrompt: null,
   optimizationMetrics: null, // { model, latency, tokens, cost }
   optimizationModalOpen: false,
+
+  // Quality Analysis (OpenAI prompt review — advisory, never touches
+  // the editor/database). Tied to whichever version was analyzed, so
+  // switching prompts/versions/collections clears it rather than
+  // showing a stale score for different content.
+  isAnalyzing: false,
+  analysisError: null,
+  qualityAnalysis: null, // { overallScore, scores, summary, suggestions, model }
 
   // ---------------- Collections ----------------
 
@@ -99,6 +115,8 @@ const useWorkspaceStore = create((set, get) => ({
       optimizationMetrics: null,
       optimizationError: null,
       optimizationModalOpen: false,
+      qualityAnalysis: null,
+      analysisError: null,
     });
     await get().fetchPrompts(collectionId);
   },
@@ -148,6 +166,8 @@ const useWorkspaceStore = create((set, get) => ({
       optimizationMetrics: null,
       optimizationError: null,
       optimizationModalOpen: false,
+      qualityAnalysis: null,
+      analysisError: null,
     });
 
     try {
@@ -239,6 +259,10 @@ const useWorkspaceStore = create((set, get) => ({
       optimizedPrompt: null,
       optimizationMetrics: null,
       optimizationModalOpen: false,
+      // A quality analysis is tied to the version it analyzed —
+      // switching versions makes it stale/misleading, so clear it.
+      qualityAnalysis: null,
+      analysisError: null,
     });
   },
 
@@ -263,12 +287,74 @@ const useWorkspaceStore = create((set, get) => ({
         prompts: state.prompts.map((p) =>
           p._id === prompt._id ? prompt : p
         ),
+        // The newly saved version hasn't been analyzed under its own
+        // versionId yet, even if its content happens to match what
+        // was just analyzed — keep analysis strictly tied to a version.
+        qualityAnalysis: null,
+        analysisError: null,
       }));
 
       return version;
     } catch (error) {
       console.error("Failed to save version:", error);
       set({ saving: false, error: "Failed to save version" });
+      throw error;
+    }
+  },
+
+  // ---------------- Version History (Workspace panel) ----------------
+
+  openVersionHistory: () => set({ versionHistoryOpen: true, restoreError: null }),
+  closeVersionHistory: () => set({ versionHistoryOpen: false }),
+
+  // Restores an older version by writing its content through the
+  // EXISTING save-version endpoint/flow — this is exactly what
+  // clicking "Save Version" in the editor already does, just with
+  // the restored content instead of whatever's currently typed. That
+  // means restoring always creates a brand-new version (never
+  // mutates or deletes anything), so history is never destroyed.
+  restoreVersion: async (versionNumber) => {
+    const { activePromptId, versions, restoringVersion } = get();
+    if (!activePromptId || restoringVersion) return;
+
+    const version = versions.find((v) => v.versionNumber === versionNumber);
+    if (!version) return;
+
+    set({ restoringVersion: true, restoreError: null });
+
+    try {
+      // Title is intentionally omitted — restoring content shouldn't
+      // change the prompt's title.
+      const { prompt, version: newVersion } = await promptsApi.savePromptVersion(
+        activePromptId,
+        { content: version.content }
+      );
+
+      const variables = extractVariables(newVersion.content);
+
+      set((state) => ({
+        activePrompt: prompt,
+        versions: [...state.versions, newVersion],
+        viewingVersionNumber: newVersion.versionNumber,
+        editorContent: newVersion.content,
+        editorTitle: prompt.title,
+        variables,
+        variableValues: {},
+        missingVariables: variables,
+        resolvedPrompt: null,
+        restoringVersion: false,
+        versionHistoryOpen: false,
+        prompts: state.prompts.map((p) => (p._id === prompt._id ? prompt : p)),
+        // A restored version hasn't been analyzed under its own
+        // versionId yet — same rule saveVersion already follows.
+        qualityAnalysis: null,
+        analysisError: null,
+      }));
+
+      return newVersion;
+    } catch (error) {
+      console.error("Failed to restore version:", error);
+      set({ restoringVersion: false, restoreError: "Unable to restore this version." });
       throw error;
     }
   },
@@ -403,6 +489,74 @@ const useWorkspaceStore = create((set, get) => ({
       optimizedPrompt: null,
       optimizationMetrics: null,
     });
+  },
+
+  // ---------------- Quality Analysis (advisory, review-only) ----------------
+
+  // Analyzes the PROMPT ITSELF — distinct from runPrompt (executes it)
+  // and from Compare's judge (scores a response to a test input).
+  // Never touches the editor, the database, or versions; only stages
+  // a result for review. Respects whichever version is currently
+  // being viewed by sending that version's id, mirroring how Compare
+  // targets specific versions.
+  // ---------------- Library integration ----------------
+
+  // Opens a specific prompt directly (e.g. from the Prompt Library at
+  // /prompts/:id, or any other deep link) without requiring its
+  // collection to already be expanded in the sidebar first. Reuses
+  // selectPrompt for all the actual loading, then syncs the sidebar's
+  // active collection afterward so it doesn't reset the prompt state
+  // selectPrompt just populated.
+  openPromptDirect: async (promptId) => {
+    await get().selectPrompt(promptId);
+
+    const prompt = get().activePrompt;
+    if (!prompt) return;
+
+    const collectionId = prompt.collectionId || null;
+    if (collectionId !== get().activeCollectionId) {
+      set({ activeCollectionId: collectionId });
+      if (collectionId) {
+        get().fetchPrompts(collectionId);
+      }
+    }
+  },
+
+  analyzePrompt: async () => {
+    const { activePromptId, isAnalyzing, viewingVersionNumber, versions } = get();
+
+    if (!activePromptId || isAnalyzing) return;
+
+    const version = versions.find(
+      (v) => v.versionNumber === viewingVersionNumber
+    );
+
+    set({ isAnalyzing: true, analysisError: null, error: null });
+
+    try {
+      const result = await promptsApi.analyzePrompt(activePromptId, {
+        versionId: version?._id,
+      });
+
+      set({
+        isAnalyzing: false,
+        qualityAnalysis: {
+          overallScore: result.overallScore,
+          scores: result.scores,
+          summary: result.summary,
+          suggestions: result.suggestions,
+          model: result.model,
+        },
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Failed to analyze prompt:", error);
+      const message =
+        error?.response?.data?.message || "Unable to analyze this prompt right now.";
+      set({ isAnalyzing: false, analysisError: message });
+      throw error;
+    }
   },
 }));
 

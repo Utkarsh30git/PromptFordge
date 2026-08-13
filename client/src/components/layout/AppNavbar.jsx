@@ -4,6 +4,7 @@ import useAuthStore from "../../store/authStore";
 
 const APP_LINKS = [
   { name: "Dashboard", to: "/dashboard" },
+  { name: "Prompts", to: "/prompts" },
   { name: "Workspace", to: "/workspace" },
   { name: "Compare", to: "/compare" },
   { name: "Analytics", to: "/analytics" },

@@ -1,0 +1,411 @@
+/* ==========================================
+   PROMPT LIBRARY — shared page shell
+   Reuses .dashboard-page / .dashboard-header / .dashboard-kicker /
+   .dashboard-title / .dashboard-subtitle from dashboard.css, and
+   .empty-state / .settings-tab / .settings-input from app-pages.css.
+========================================== */
+
+.library-page {
+  padding: clamp(28px, 22px + 2vw, 48px) 0 var(--space-xxl);
+}
+
+.library-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: var(--space-lg);
+}
+
+.library-header-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ==========================================
+   CONTROLS — search / filter tabs / sort
+========================================== */
+
+.library-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+
+  margin-bottom: var(--space-md);
+}
+
+.library-search {
+  flex: 1 1 240px;
+  min-width: 200px;
+
+  background: #17171a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
+
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.library-search:focus {
+  border-color: var(--amber);
+}
+
+.library-filters {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: #151517;
+}
+
+.library-sort {
+  background: #17171a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 9px 12px;
+
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: inherit;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.library-sort:focus {
+  border-color: var(--amber);
+}
+
+/* ==========================================
+   PROMPT GRID + CARD
+========================================== */
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.prompt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+  background: #151517;
+
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.prompt-card:hover {
+  border-color: rgba(255, 177, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.prompt-card-skeleton {
+  min-height: 168px;
+  background: linear-gradient(
+    100deg,
+    #151517 30%,
+    #1b1b1e 50%,
+    #151517 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-color: var(--border-soft);
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.prompt-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.prompt-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.prompt-card-fav {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-dimmer);
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.prompt-card-fav:hover {
+  color: var(--amber);
+  transform: scale(1.1);
+}
+
+.prompt-card-fav.active {
+  color: var(--amber);
+}
+
+.prompt-card-preview {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  min-height: 2.6em;
+}
+
+.prompt-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prompt-card-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.prompt-card-updated {
+  font-size: 11.5px;
+  color: var(--text-dimmer);
+  margin-left: auto;
+}
+
+.prompt-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+/* ==========================================
+   ••• MENU (prompt card + collection card)
+========================================== */
+
+.prompt-card-menu-wrap {
+  position: relative;
+}
+
+.prompt-card-menu-btn {
+  background: none;
+  border: none;
+  padding: 6px 8px;
+
+  color: var(--text-dimmer);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.prompt-card-menu-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.prompt-card-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+
+  min-width: 180px;
+  max-height: 220px;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #18181b;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+}
+
+.prompt-card-menu-label {
+  padding: 6px 10px 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+}
+
+.prompt-card-menu-item {
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.prompt-card-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.prompt-card-menu-item-danger {
+  color: #ff8b8b;
+}
+
+/* ==========================================
+   COLLECTIONS GRID + CARD
+========================================== */
+
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.collection-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 18px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+  background: #151517;
+
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.collection-card:hover {
+  border-color: rgba(255, 177, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.collection-card-skeleton {
+  min-height: 66px;
+  background: linear-gradient(
+    100deg,
+    #151517 30%,
+    #1b1b1e 50%,
+    #151517 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-color: var(--border-soft);
+}
+
+.collection-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.collection-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collection-card-count {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 1024px) {
+  .library-grid,
+  .collections-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .library-header {
+    align-items: flex-start;
+  }
+
+  .library-header-actions {
+    width: 100%;
+  }
+
+  .library-header-actions .btn {
+    flex: 1;
+  }
+
+  .library-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .library-filters {
+    justify-content: center;
+  }
+
+  .library-grid,
+  .collections-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-card-updated {
+    margin-left: 0;
+  }
+}

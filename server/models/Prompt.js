@@ -6,6 +6,7 @@ const promptSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength: 200,
       default: "untitled.prompt",
     },
 
@@ -14,6 +15,7 @@ const promptSchema = new mongoose.Schema(
     // to show what a prompt currently contains.
     content: {
       type: String,
+      maxlength: 20_000,
       default: "",
     },
 
@@ -21,6 +23,13 @@ const promptSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Collection",
       default: null,
+    },
+
+    // Lets a user star a prompt for quick access from the Library's
+    // "Favorites" filter, without opening the Workspace.
+    isFavorite: {
+      type: Boolean,
+      default: false,
     },
 
     userId: {

@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import PromptRun from "../models/PromptRun.js";
 import Comparison from "../models/Comparison.js";
 import { findOwnedPrompt, isValidObjectId } from "../utils/promptOwnership.js";
+import { reserveCredit, refundCredit } from "../utils/credits.js";
 import {
   runPrompt as callOpenAI,
   judgeComparison,
@@ -15,6 +16,10 @@ import {
 } from "../config/modelPricing.js";
 import { findMissingVariables, resolveVariables } from "../utils/promptVariables.js";
 
+const MAX_TEST_INPUT_LENGTH = 10_000;
+const MAX_VARIABLE_KEYS = 50;
+const MAX_VARIABLE_VALUE_LENGTH = 5_000;
+
 // Same sanitization as promptController.js's runPromptExecution —
 // duplicated locally to keep this controller self-contained.
 const sanitizeVariableValues = (raw) => {
@@ -22,8 +27,9 @@ const sanitizeVariableValues = (raw) => {
 
   const values = {};
   for (const [name, value] of Object.entries(raw)) {
+    if (Object.keys(values).length >= MAX_VARIABLE_KEYS) break;
     if (typeof value === "string" || typeof value === "number") {
-      values[name] = String(value);
+      values[name] = String(value).slice(0, MAX_VARIABLE_VALUE_LENGTH);
     }
   }
   return values;
@@ -84,6 +90,11 @@ export const compareVersions = async (req, res) => {
     if (!testInput) {
       return res.status(400).json({
         message: "Enter a test input to run both prompts against",
+      });
+    }
+    if (testInput.length > MAX_TEST_INPUT_LENGTH) {
+      return res.status(400).json({
+        message: `Test input must be ${MAX_TEST_INPUT_LENGTH.toLocaleString()} characters or fewer`,
       });
     }
 
@@ -156,8 +167,6 @@ export const compareVersions = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // One Compare action = one credit, deducted only once everything
-    // (both executions + the judge) has genuinely succeeded.
     if (user.credits <= 0) {
       return res.status(402).json({
         message: "You're out of credits. Upgrade your plan to keep comparing prompts.",
@@ -167,6 +176,17 @@ export const compareVersions = async (req, res) => {
     if (!process.env.OPENAI_API_KEY) {
       return res.status(500).json({
         message: "AI execution is not configured on the server yet.",
+      });
+    }
+
+    // Atomically reserve the credit before either execution starts —
+    // see utils/credits.js for why this (not a plain check-then-save)
+    // is what actually prevents concurrent requests from overspending.
+    // One Compare = one credit, refunded if EITHER stage below fails.
+    const reservedUser = await reserveCredit(req.userId);
+    if (!reservedUser) {
+      return res.status(402).json({
+        message: "You're out of credits. Upgrade your plan to keep comparing prompts.",
       });
     }
 
@@ -183,6 +203,7 @@ export const compareVersions = async (req, res) => {
       ]);
     } catch (err) {
       console.error("Compare execution error:", err.message);
+      await refundCredit(req.userId);
       return res.status(mapOpenAIErrorStatus(err)).json({
         message: mapOpenAIErrorMessage(err),
       });
@@ -200,6 +221,7 @@ export const compareVersions = async (req, res) => {
       });
     } catch (err) {
       console.error("Compare judge error:", err.message);
+      await refundCredit(req.userId);
       return res.status(mapOpenAIErrorStatus(err)).json({
         message:
           err.code === "JUDGE_INVALID_RESPONSE"
@@ -207,10 +229,6 @@ export const compareVersions = async (req, res) => {
             : mapOpenAIErrorMessage(err),
       });
     }
-
-    // Only now, after the entire pipeline succeeded, deduct the credit.
-    user.credits -= 1;
-    await user.save();
 
     // Logging must never break the response the user is waiting on —
     // if this fails for any reason, they still get their comparison
@@ -281,7 +299,7 @@ export const compareVersions = async (req, res) => {
         winner: judged.winner,
         reason: judged.reason,
       },
-      creditsRemaining: user.credits,
+      creditsRemaining: reservedUser.credits,
     });
   } catch (error) {
     console.error("Compare error:", error);

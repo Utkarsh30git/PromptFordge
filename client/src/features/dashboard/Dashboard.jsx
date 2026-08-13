@@ -214,7 +214,7 @@ const Dashboard = () => {
 
                     <Button
                       variant="ghost"
-                      onClick={() => navigate("/workspace")}
+                      onClick={() => navigate(`/prompts/${prompt._id}`)}
                     >
                       Open
                     </Button>

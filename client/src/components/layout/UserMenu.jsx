@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import useAuthStore from "../../store/authStore";
 import useClickOutside from "../../hooks/useClickOutside";
+import UserAvatar from "../ui/UserAvatar";
 
 /**
  * Authenticated account menu: avatar trigger + dropdown.
@@ -11,15 +12,12 @@ import useClickOutside from "../../hooks/useClickOutside";
  */
 const UserMenu = ({ user }) => {
   const [open, setOpen] = useState(false);
-  const [avatarFailed, setAvatarFailed] = useState(false);
   const menuRef = useRef(null);
 
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
 
   useClickOutside(menuRef, () => setOpen(false), open);
-
-  const initials = user?.name?.charAt(0).toUpperCase() || "?";
 
   const handleNavigate = (path) => {
     setOpen(false);
@@ -39,16 +37,7 @@ const UserMenu = ({ user }) => {
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
       >
-        {user.avatar && !avatarFailed ? (
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="user-avatar"
-            onError={() => setAvatarFailed(true)}
-          />
-        ) : (
-          <span className="user-avatar-fallback">{initials}</span>
-        )}
+        <UserAvatar user={user} size={28} />
 
         <span className="user-name">{user.name}</span>
 

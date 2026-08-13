@@ -6,6 +6,7 @@ const collectionSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength: 100,
     },
 
     userId: {

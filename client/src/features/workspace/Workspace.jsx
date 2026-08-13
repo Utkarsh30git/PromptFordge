@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Button from "../../components/ui/Button";
 import OptimizeModal from "./OptimizeModal";
+import QualityPanel from "./QualityPanel";
+import VersionHistoryPanel from "./VersionHistoryPanel";
 import useWorkspaceStore from "../../store/workspaceStore";
 
 const RUN_MODEL = "gpt-4.1";
@@ -28,7 +30,7 @@ const clampPct = (value, max) =>
     ? 0
     : Math.max(0, Math.min(100, Math.round((value / max) * 100)));
 
-const Workspace = () => {
+const Workspace = ({ promptId }) => {
   const {
     collections,
     collectionsLoading,
@@ -53,11 +55,14 @@ const Workspace = () => {
     resolvedPrompt,
     isOptimizing,
     optimizationError,
+    isAnalyzing,
+    openVersionHistory,
     fetchCollections,
     createCollection,
     selectCollection,
     createPrompt,
     selectPrompt,
+    openPromptDirect,
     setEditorTitle,
     setEditorContent,
     setVariableValue,
@@ -65,6 +70,7 @@ const Workspace = () => {
     saveVersion,
     runPrompt,
     optimizePrompt,
+    analyzePrompt,
   } = useWorkspaceStore();
 
   // Local, UI-only state — unrelated to persistence.
@@ -77,6 +83,15 @@ const Workspace = () => {
     fetchCollections();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Deep link from the Prompt Library (/prompts/:id) — load that
+  // specific prompt straight into the editor.
+  useEffect(() => {
+    if (promptId) {
+      openPromptDirect(promptId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptId]);
 
   const showStatus = (message) => {
     setStatusMessage(message);
@@ -120,6 +135,15 @@ const Workspace = () => {
       await optimizePrompt();
     } catch {
       // optimizationError is already set on the store and surfaced above
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!activePromptId || isAnalyzing) return;
+    try {
+      await analyzePrompt();
+    } catch {
+      // analysisError is already set on the store and rendered by QualityPanel
     }
   };
 
@@ -177,6 +201,7 @@ const Workspace = () => {
   return (
     <div className="workspace-page">
       <OptimizeModal />
+      <VersionHistoryPanel />
 
       <div className="workspace-shell">
         <div className="workspace-grid">
@@ -399,6 +424,22 @@ const Workspace = () => {
               <div className="editor-actions">
                 <Button
                   variant="ghost"
+                  onClick={openVersionHistory}
+                  disabled={!hasPrompt}
+                >
+                  Version History
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  onClick={handleAnalyze}
+                  disabled={isAnalyzing || !hasPrompt}
+                >
+                  {isAnalyzing ? "Analyzing…" : "Analyze"}
+                </Button>
+
+                <Button
+                  variant="ghost"
                   onClick={handleOptimize}
                   disabled={isOptimizing || !hasPrompt}
                 >
@@ -468,6 +509,8 @@ const Workspace = () => {
                 )}
               </div>
             )}
+
+            {hasPrompt && <QualityPanel />}
           </main>
 
           {/* Metrics Panel */}

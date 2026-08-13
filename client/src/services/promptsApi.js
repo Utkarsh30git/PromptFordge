@@ -1,9 +1,20 @@
 import api from "./api";
 
-export const listPrompts = async (collectionId) => {
-  const { data } = await api.get("/api/prompts", {
-    params: collectionId ? { collection: collectionId } : {},
-  });
+export const listPrompts = async (params = {}) => {
+  // Back-compat: existing callers pass a bare collectionId string.
+  const query =
+    typeof params === "string" || params === undefined
+      ? params
+        ? { collection: params }
+        : {}
+      : {
+          ...(params.collectionId ? { collection: params.collectionId } : {}),
+          ...(params.search ? { search: params.search } : {}),
+          ...(params.filter && params.filter !== "all" ? { filter: params.filter } : {}),
+          ...(params.sort ? { sort: params.sort } : {}),
+        };
+
+  const { data } = await api.get("/api/prompts", { params: query });
   return data.prompts;
 };
 
@@ -33,6 +44,11 @@ export const deletePrompt = async (id) => {
   await api.delete(`/api/prompts/${id}`);
 };
 
+export const setPromptFavorite = async (id, isFavorite) => {
+  const { data } = await api.put(`/api/prompts/${id}/favorite`, { isFavorite });
+  return data.prompt;
+};
+
 export const savePromptVersion = async (id, { title, content }) => {
   const { data } = await api.post(`/api/prompts/${id}/save`, {
     title,
@@ -57,6 +73,13 @@ export const runPrompt = async (id, { model, temperature, variables } = {}) => {
 
 export const optimizePrompt = async (id) => {
   const { data } = await api.post(`/api/prompts/${id}/optimize`);
+  return data;
+};
+
+export const analyzePrompt = async (id, { versionId } = {}) => {
+  const { data } = await api.post(`/api/prompts/${id}/analyze`, {
+    versionId,
+  });
   return data;
 };
 
