@@ -1,10 +1,6 @@
 import { create } from "zustand";
 import * as analyticsApi from "../services/analyticsApi";
 
-// Single source of truth for real analytics data — used by both the
-// Analytics page and the Dashboard's overview cards/recent activity,
-// so the aggregation logic and the numbers shown are never computed
-// twice in two different places.
 const useAnalyticsStore = create((set, get) => ({
   range: "30d",
   data: null,

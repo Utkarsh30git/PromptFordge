@@ -97,12 +97,12 @@ const Collections = () => {
     deleteCollection,
   } = usePromptLibraryStore();
 
-  const [modal, setModal] = useState(null); // { mode: 'create' | 'rename', collection? }
+  const [modal, setModal] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
     fetchCollections();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const showEmpty = !collectionsLoading && !collectionsError && collections.length === 0;

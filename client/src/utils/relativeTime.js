@@ -1,6 +1,5 @@
-// Small shared helper — used anywhere we show "2 hours ago"-style
-// timestamps (Dashboard's recent activity, Analytics' recent
-// activity) so the formatting logic exists in exactly one place.
+
+
 export const formatRelativeTime = (date) => {
   const then = new Date(date).getTime();
   if (Number.isNaN(then)) return "";

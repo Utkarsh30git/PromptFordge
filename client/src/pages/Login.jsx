@@ -29,15 +29,12 @@ const Login = () => {
   const loading = useAuthStore((state) => state.loading);
   const navigate = useNavigate();
 
-  // Already authenticated users shouldn't see the login card.
   useEffect(() => {
     if (!loading && user) {
       navigate("/dashboard", { replace: true });
     }
   }, [user, loading, navigate]);
 
-  // Avoid flashing the login card while we're still resolving
-  // the current session, or while redirecting an authed user.
   if (loading || user) {
     return <div className="login-page" />;
   }

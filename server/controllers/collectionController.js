@@ -4,7 +4,6 @@ import Prompt from "../models/Prompt.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-// POST /api/collections
 export const createCollection = async (req, res) => {
   try {
     const { name } = req.body;
@@ -43,11 +42,7 @@ export const createCollection = async (req, res) => {
       collection,
     });
   } catch (error) {
-    // The findOne-then-create above still has a race window (two
-    // simultaneous requests can both pass the pre-check) — the
-    // schema's unique index is the real guarantee. If it fires, that
-    // means the race happened; report it the same clean way the
-    // pre-check would have, not as a raw Mongo error.
+
     if (error.code === 11000) {
       return res.status(409).json({
         message: "You already have a collection with this name",
@@ -62,9 +57,6 @@ export const createCollection = async (req, res) => {
   }
 };
 
-// GET /api/collections
-// Includes a promptCount per collection (for the Library's Collections
-// view) via one grouped aggregation rather than a query per collection.
 export const getCollections = async (req, res) => {
   try {
     const collections = await Collection.find({
@@ -101,7 +93,6 @@ export const getCollections = async (req, res) => {
   }
 };
 
-// PUT /api/collections/:id
 export const updateCollection = async (req, res) => {
   try {
     if (!isValidObjectId(req.params.id)) {
@@ -128,8 +119,6 @@ export const updateCollection = async (req, res) => {
       userId: req.userId,
     });
 
-    // Ownership check: if it's not found for THIS user, treat it as
-    // not existing at all — never confirm another user's data exists.
     if (!collection) {
       return res.status(404).json({
         message: "Collection not found",
@@ -158,7 +147,6 @@ export const updateCollection = async (req, res) => {
   }
 };
 
-// DELETE /api/collections/:id
 export const deleteCollection = async (req, res) => {
   try {
     if (!isValidObjectId(req.params.id)) {
@@ -176,8 +164,6 @@ export const deleteCollection = async (req, res) => {
       });
     }
 
-    // Prompts aren't deleted with their collection — they're just
-    // unassigned, so nobody's work silently disappears.
     await Prompt.updateMany(
       { collectionId: collection._id, userId: req.userId },
       { $set: { collectionId: null } }

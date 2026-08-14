@@ -1,12 +1,5 @@
 import mongoose from "mongoose";
 
-// One row per completed Compare action. Deliberately does NOT store
-// the AI response text for either side — that already lives in the
-// two PromptRun ("compare" type) records this comparison produced,
-// referenced back via those records' comparisonId. This model only
-// holds what's specific to the comparison itself: which two versions
-// were pitted against each other, the shared test input, and the
-// judge's verdict.
 const comparisonSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,

@@ -1,14 +1,8 @@
-/* ==========================================
-   WORKSPACE SECTION
-========================================== */
+
 
 .workspace-section {
   padding: var(--space-xl) 0 var(--space-xxl);
 }
-
-/* ==========================================
-   WORKSPACE MOCKUP
-========================================== */
 
 .workspace-mockup {
   margin-top: clamp(40px, 30px + 5vw, 90px);
@@ -29,15 +23,11 @@
   display: grid;
   grid-template-columns:
     minmax(140px, 190px)
-    minmax(50px, 70px)
+    minmax(96px, 130px)
     minmax(280px, 1fr)
     minmax(180px, 220px);
   min-height: 520px;
 }
-
-/* ==========================================
-   COLLECTIONS PANEL
-========================================== */
 
 .collections-panel {
   border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -49,24 +39,26 @@
   color: #8d8d95;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-bottom: 26px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
-
-/* ==========================================
-   NEW: panel header row (title + "add" button)
-   Used by .collections-panel so the existing
-   .panel-title is untouched, just wrapped.
-========================================== */
 
 .panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 26px;
+  height: 26px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .panel-header .panel-title {
   margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .panel-add-btn {
@@ -88,10 +80,15 @@
   transition: all 0.2s ease;
 }
 
-.panel-add-btn:hover {
+.panel-add-btn:hover:not(:disabled) {
   border-color: rgba(255, 184, 0, 0.4);
   color: var(--amber);
   background: rgba(255, 184, 0, 0.08);
+}
+
+.panel-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .panel-empty-hint {
@@ -108,10 +105,11 @@
 .panel-empty-hint.vertical {
   padding: 0;
   writing-mode: horizontal-tb;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 90px;
 }
 
-/* Inline "new collection" input — same shape/rhythm as
-   .collection-item so it doesn't look like a foreign element. */
 .collection-item-input {
   width: 100%;
   margin-top: 2px;
@@ -138,27 +136,73 @@
 }
 
 .collection-item {
-  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  padding: 10px 16px;
   border-radius: 12px;
+  border: 1px solid transparent;
   color: var(--text-dim);
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .collection-item:hover {
-  background: rgba(255, 184, 0, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 184, 0, 0.12);
   color: var(--text);
 }
 
 .collection-item.active {
-  background: rgba(255, 184, 0, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 184, 0, 0.2);
+  background: #17140a;
+  border-color: rgba(255, 184, 0, 0.32);
+  color: var(--amber);
+  font-weight: 600;
 }
 
-/* ==========================================
-   NEW: prompts nested under the active collection
-========================================== */
+.collection-item-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--text-dimmer);
+}
+
+.collection-item.active .collection-item-icon {
+  color: var(--amber);
+}
+
+.collection-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.collection-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collection-item-count {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-dimmer);
+}
+
+.collection-item.active .collection-item-count {
+  color: rgba(255, 184, 0, 0.65);
+}
+
+.collections-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.collection-list {
+  flex: 1;
+}
 
 .prompt-sublist {
   display: flex;
@@ -171,17 +215,16 @@
 }
 
 .prompt-item {
-  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 8px 6px 8px 12px;
   border-radius: 8px;
 
   color: #8b8b93;
   font-size: 13px;
-  cursor: pointer;
   transition: all 0.2s ease;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .prompt-item:hover {
@@ -194,9 +237,54 @@
   color: var(--amber);
 }
 
+.prompt-item-label {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prompt-item-delete-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+  color: var(--text-dimmer);
+  cursor: pointer;
+
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.prompt-item:hover .prompt-item-delete-btn,
+.prompt-item-delete-btn:focus-visible {
+  opacity: 1;
+}
+
+.prompt-item-delete-btn:hover {
+  color: var(--red);
+  background: rgba(248, 113, 113, 0.12);
+}
+
 .prompt-item-add {
+  padding-left: 12px;
   color: #6e6e76;
   font-style: italic;
+  cursor: pointer;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .prompt-item-add:hover {
@@ -204,31 +292,84 @@
   background: rgba(255, 184, 0, 0.06);
 }
 
-/* ==========================================
-   VERSION RAIL
-========================================== */
+@media (hover: none) {
+  .prompt-item-delete-btn {
+    opacity: 1;
+  }
+}
 
 .version-rail {
   border-right: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 26px 0;
+  padding: 24px 10px 26px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.version-rail-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  height: 26px;
+
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.version-rail-header .panel-add-btn {
+  width: 20px;
+  height: 20px;
+}
+
 .version-title {
-  font-size: 11px;
+  font-size: 10px;
   color: #73737b;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 34px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .version-list {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
+}
+
+.version-view-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  margin-top: 16px;
+  padding: 8px 10px;
+  width: 100%;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.version-view-all-btn:hover:not(:disabled) {
+  border-color: rgba(255, 184, 0, 0.3);
+  color: var(--amber);
+  background: rgba(255, 184, 0, 0.06);
+}
+
+.version-view-all-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .version-node {
@@ -255,7 +396,7 @@
 
 .version-dot.active {
   background: var(--amber);
-  box-shadow: 0 0 18px rgba(255, 184, 0, 0.55);
+  box-shadow: 0 0 8px rgba(255, 184, 0, 0.4);
 }
 
 .version-line {
@@ -264,20 +405,70 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* ==========================================
-   PROMPT EDITOR
-========================================== */
-
 .editor-panel {
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  min-width: 0; /* allow grid child to shrink instead of overflowing */
+  padding: 24px;
+  min-width: 0;
 }
 
 .editor-header {
-  padding-bottom: 20px;
+  height: 26px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.editor-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.editor-title-edit-icon {
+  flex-shrink: 0;
+  color: var(--text-dimmer);
+}
+
+.editor-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.editor-icon-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editor-icon-btn:hover:not(:disabled) {
+  border-color: rgba(255, 184, 0, 0.3);
+  color: var(--amber);
+  background: rgba(255, 184, 0, 0.06);
+}
+
+.editor-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .prompt-name {
@@ -297,6 +488,7 @@
 }
 
 .editor-body {
+  position: relative;
   flex: 1;
   padding: 26px 0;
 }
@@ -316,6 +508,140 @@
 
 .prompt-editor::placeholder {
   color: #6e6e76;
+}
+
+.editor-content-enter {
+  animation: editor-content-enter 0.2s ease-out both;
+}
+
+@keyframes editor-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-content-enter {
+    animation: none;
+  }
+}
+
+.editor-empty-state {
+  position: relative;
+  height: 100%;
+  min-height: 320px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 32px;
+
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.editor-empty-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.045) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 45%,
+    rgba(0, 0, 0, 0.55) 0%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 45%,
+    rgba(0, 0, 0, 0.55) 0%,
+    transparent 78%
+  );
+}
+
+.editor-empty-pattern::before,
+.editor-empty-pattern::after {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.5;
+}
+
+.editor-empty-pattern::before {
+  top: -60px;
+  left: -60px;
+  background: radial-gradient(circle, var(--amber-soft) 0%, transparent 70%);
+}
+
+.editor-empty-pattern::after {
+  bottom: -60px;
+  right: -60px;
+  background: radial-gradient(circle, var(--emerald-glow) 0%, transparent 70%);
+}
+
+.editor-empty-title {
+  position: relative;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin: 0;
+
+  animation: editor-empty-in 0.3s ease-out both;
+}
+
+.editor-empty-desc {
+  position: relative;
+  max-width: 340px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin: 0;
+
+  animation: editor-empty-in 0.3s ease-out 0.05s both;
+}
+
+.editor-empty-actions {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+
+  animation: editor-empty-in 0.3s ease-out 0.1s both;
+}
+
+@keyframes editor-empty-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-empty-title,
+  .editor-empty-desc,
+  .editor-empty-actions {
+    animation: none;
+  }
 }
 
 .editor-footer {
@@ -349,8 +675,29 @@
   font-size: 13px;
 }
 
+.editor-chip-model {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.editor-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 6px var(--emerald-glow);
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  flex-shrink: 0;
+  margin-right: 7px;
+}
+
 .editor-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -365,72 +712,321 @@
   font-weight: 600;
 }
 
-/* ==========================================
-   RESPONSE PANEL
-   Sits below the existing editor-footer, inside the same
-   .editor-panel column. Only rendered while running / after
-   a run / on error — otherwise the editor looks exactly as
-   it did before this feature existed.
-========================================== */
-
 .response-panel {
   margin-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 18px;
+
+  animation: response-appear 0.35s ease both;
+}
+
+@keyframes response-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .response-panel {
+    animation: none;
+  }
 }
 
 .response-panel-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .response-panel-title {
   font-size: 11px;
-  color: #73737b;
+  color: #9a9aa2;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  font-weight: 600;
+}
+
+.response-panel-model {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.response-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-dimmer);
+}
+
+.response-status-dot.status-ready {
+  background: var(--text-dimmer);
+}
+
+.response-status-dot.status-running {
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(255, 177, 0, 0.35);
+
+  animation: status-dot-pulse 1.6s ease-in-out infinite;
+}
+
+.response-status-dot.status-complete {
+  background: var(--emerald);
+  box-shadow: 0 0 6px var(--emerald-glow);
+}
+
+.response-status-dot.status-error {
+  background: var(--red);
+  box-shadow: 0 0 6px rgba(248, 113, 113, 0.4);
+}
+
+@keyframes status-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .response-status-dot.status-running {
+    animation: none;
+  }
+}
+
+.response-status-label {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+}
+
+.response-status-label.status-running {
+  color: var(--amber);
+}
+
+.response-status-label.status-complete {
+  color: var(--emerald);
+}
+
+.response-status-label.status-error {
+  color: var(--red);
+}
+
+.response-empty-state {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #17171a;
+  padding: 28px 18px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.response-empty-kicker {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+}
+
+.response-empty-desc {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+
+.response-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.response-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.response-meta-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+}
+
+.response-meta-value {
+  font-size: 12.5px;
+  color: var(--text);
 }
 
 .response-panel-body {
-  max-height: 280px;
+  max-height: 320px;
   overflow-y: auto;
 
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: #17171a;
-  padding: 16px 18px;
+  padding: 18px 20px;
 }
 
-.response-text {
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-
+.response-markdown {
   color: #d8d8dc;
   font-size: 14.5px;
-  line-height: 1.75;
+  line-height: 1.7;
   font-family: inherit;
 }
 
+.response-paragraph {
+  margin: 0 0 14px;
+}
+
+.response-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.response-heading {
+  margin: 20px 0 10px;
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.response-heading:first-child {
+  margin-top: 0;
+}
+
+h3.response-heading {
+  font-size: 17px;
+}
+
+h4.response-heading {
+  font-size: 15.5px;
+}
+
+h5.response-heading {
+  font-size: 14px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.response-list {
+  margin: 0 0 14px;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.response-list:last-child {
+  margin-bottom: 0;
+}
+
+.response-quote {
+  margin: 0 0 14px;
+  padding: 4px 0 4px 14px;
+  border-left: 2px solid rgba(255, 177, 0, 0.3);
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.response-inline-code {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: #f0c674;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9em;
+}
+
+.response-code-block {
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #101012;
+
+  overflow-x: auto;
+
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #d0d0d6;
+}
+
+.response-code-block:last-child {
+  margin-bottom: 0;
+}
+
+.response-code-lang {
+  margin-bottom: 8px;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+}
+
 .response-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--text-dim);
   font-size: 14px;
+  padding: 4px 0;
+}
+
+.response-loading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex-shrink: 0;
+  animation: status-dot-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .response-loading-dot {
+    animation: none;
+  }
 }
 
 .response-error {
-  color: #ff8b8b;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+
+  border-radius: 12px;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  background: rgba(248, 113, 113, 0.05);
+  padding: 14px 16px;
 }
 
-/* ==========================================
-   VARIABLES PANEL
-   Sits between the editor body and editor-footer, inside the same
-   .editor-panel column. Only rendered when {{variables}} are
-   detected in the current editor content — otherwise the editor
-   looks exactly as it did before this feature existed.
-========================================== */
+.response-error-text {
+  margin: 0;
+  color: #ff9a9a;
+  font-size: 14px;
+}
 
 .variables-panel {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -490,12 +1086,6 @@
   border-color: rgba(248, 113, 113, 0.4);
 }
 
-/* ==========================================
-   RESOLVED PROMPT PREVIEW
-   A small, read-only expandable section inside the response panel
-   showing exactly what was sent to OpenAI after variable resolution.
-========================================== */
-
 .resolved-prompt-toggle {
   margin-top: 12px;
 }
@@ -521,13 +1111,16 @@
   color: var(--text-dim);
 }
 
-/* ==========================================
-   OPTIMIZE MODAL
-   A focused review step between "Optimize" and the editor —
-   nothing here is persisted until the user explicitly chooses
-   "Use Optimized Prompt" (and even then, only Save Version
-   writes to the database).
-========================================== */
+.response-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  color: #d8d8dc;
+  font-size: 13.5px;
+  line-height: 1.7;
+  font-family: "JetBrains Mono", monospace;
+}
 
 .optimize-overlay {
   position: fixed;
@@ -541,12 +1134,43 @@
   padding: clamp(1rem, 0.5rem + 3vw, 2.5rem);
   background: rgba(6, 6, 7, 0.72);
   backdrop-filter: blur(6px);
+
+  animation: overlay-fade 0.2s ease both;
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .optimize-overlay,
+  .optimize-modal {
+    animation: none;
+  }
 }
 
 .optimize-modal {
   width: 100%;
   max-width: 880px;
   max-height: 85vh;
+
+  animation: modal-enter 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   display: flex;
   flex-direction: column;
@@ -646,10 +1270,6 @@
   gap: 12px;
 }
 
-/* ==========================================
-   RESPONSIVE
-========================================== */
-
 @media (max-width: 760px) {
   .optimize-columns {
     grid-template-columns: 1fr;
@@ -705,17 +1325,6 @@
 .editor-btn.amber:hover {
   transform: translateY(-2px);
 }
-
-/* ==========================================
-   QUALITY PANEL
-   Sits below the response panel, inside the same .editor-panel
-   column — same nesting/visibility rule as .response-panel and
-   .variables-panel: only meaningfully rendered while a prompt is
-   selected, otherwise the editor looks exactly as it did before
-   this feature existed. Advisory only: nothing here writes to the
-   database, the editor, or versions except via the existing
-   Optimize action it delegates to.
-========================================== */
 
 .quality-panel {
   margin-top: 20px;
@@ -815,8 +1424,6 @@
   margin-left: 2px;
 }
 
-/* Low / Medium / Strong bands — reuse the existing theme palette
-   only (red / amber / teal), never new colors. */
 .quality-tone-low {
   color: var(--red);
 }
@@ -924,10 +1531,6 @@
   justify-content: flex-start;
 }
 
-/* ==========================================
-   CODE EDITOR
-========================================== */
-
 .editor-code {
   display: grid;
   grid-template-columns: 40px 1fr;
@@ -962,10 +1565,6 @@
   animation: blink 1.2s infinite;
 }
 
-/* ==========================================
-   METRICS PANEL
-========================================== */
-
 .metrics-panel {
   border-left: 1px solid rgba(255, 255, 255, 0.06);
   padding: 24px;
@@ -985,7 +1584,7 @@
   background: #1a1a1d;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 14px;
-  padding: 15px;
+  padding: 16px;
   transition: all 0.25s ease;
 }
 
@@ -998,17 +1597,35 @@
 }
 
 .metric-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: #7d7d86;
   font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+.metric-label-icon {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  opacity: 0.8;
+}
+
+.metric-caption {
+  display: block;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-dimmer);
 }
 
 .metric-card strong {
+  display: block;
   font-size: 26px;
   font-weight: 700;
+  line-height: 1.2;
   color: var(--teal);
 }
 
@@ -1020,14 +1637,10 @@
   color: var(--teal);
 }
 
-/* ==========================================
-   METRIC PROGRESS
-========================================== */
-
 .metric-progress {
   width: 100%;
   height: 6px;
-  margin-top: 18px;
+  margin-top: 14px;
   border-radius: 999px;
   background: #26262a;
   overflow: hidden;
@@ -1039,14 +1652,6 @@
   background: linear-gradient(90deg, #26262a, #f33939);
   animation: growBar 1.4s ease;
 }
-
-/* ==========================================
-   WORKSPACE PAGE (authenticated /workspace route)
-   The landing page embeds .workspace-mockup as a fixed-height
-   marketing visual; the real app route fills the viewport and
-   is fully interactive, so it gets its own sizing here while
-   reusing every class above unchanged.
-========================================== */
 
 .workspace-page {
   padding: 20px clamp(1rem, 0.5rem + 2vw, 2rem) 40px;
@@ -1074,25 +1679,143 @@
   }
 }
 
-/* ==========================================
-   RESPONSIVE
-   Desktop (>=1280px) matches the original design 1:1.
-   Below that, the fixed-width/fixed-column layouts
-   progressively collapse so nothing overflows or clips.
-========================================== */
+.workspace-shell .editor-actions {
+  gap: 10px;
+}
 
-/* Large tablet / small laptop */
+.workspace-shell .editor-actions .btn-amber {
+  margin-left: 8px;
+  padding-left: 22px;
+  padding-right: 22px;
+  box-shadow: 0 4px 18px rgba(255, 177, 0, 0.18);
+}
+
+.workspace-shell .editor-actions .btn-amber:hover:not(:disabled) {
+  box-shadow: 0 6px 22px rgba(255, 177, 0, 0.28);
+}
+
+.workspace-shell .response-panel {
+  border-top-color: rgba(255, 255, 255, 0.09);
+}
+
+.workspace-shell .response-panel-title {
+  display: inline-flex;
+  align-items: center;
+}
+
+.workspace-shell .version-dot.active {
+  box-shadow: 0 0 0 3px rgba(255, 177, 0, 0.18);
+}
+
+.workspace-shell .variable-field-input {
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.workspace-shell .variable-field-input:hover:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-shell .variable-field-input {
+    transition: none;
+  }
+}
+
+.workspace-shell .editor-panel {
+  position: relative;
+  border-radius: 18px;
+}
+
+.workspace-shell .editor-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.35),
+    0 0 26px rgba(16, 185, 129, 0.08);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.workspace-shell .editor-panel:focus-within::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-shell .editor-panel::after {
+    transition: none;
+  }
+}
+
+.workspace-shell .metrics-list .metric-card:nth-child(1) strong {
+  color: var(--emerald);
+}
+
+.workspace-shell .metrics-list .metric-card:nth-child(1) .metric-fill {
+  background: linear-gradient(90deg, #145c46, var(--emerald));
+}
+
+.workspace-shell .metrics-list .metric-card:nth-child(2) strong {
+  color: var(--teal);
+}
+
+.workspace-shell .metrics-list .metric-card:nth-child(2) .metric-fill {
+  background: linear-gradient(90deg, #0f4a44, var(--teal));
+}
+
+.workspace-shell .metrics-list .metric-card:nth-child(3) strong {
+  color: var(--amber);
+}
+
+.workspace-shell .metrics-list .metric-card:nth-child(3) .metric-fill {
+  background: linear-gradient(90deg, #5c4200, var(--amber));
+}
+
+.workspace-shell .metric-card strong {
+  display: inline-block;
+  animation: metric-update 0.25s ease both;
+}
+
+.workspace-shell .metric-card strong.metric-value-empty {
+  color: var(--text-dimmer) !important;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+@keyframes metric-update {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-shell .metric-card strong {
+    animation: none;
+  }
+}
+
+.workspace-shell .version-dot:not(.active):hover {
+  background: var(--emerald);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+}
+
 @media (max-width: 1279px) {
   .workspace-grid {
     grid-template-columns:
       160px
-      60px
+      100px
       minmax(260px, 1fr)
       190px;
   }
 }
 
-/* Tablet */
 @media (max-width: 1024px) {
   .workspace-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1108,12 +1831,23 @@
   }
 
   .version-rail {
-    flex-direction: row;
     padding: 20px 24px;
+  }
+
+  .version-rail-header {
+    width: auto;
+    flex: 0 0 auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    padding-right: 20px;
+    margin-right: 20px;
+    border-bottom: none;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
   }
 
   .version-list {
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 24px;
   }
 
@@ -1125,10 +1859,82 @@
   .metrics-panel {
     border-left: none;
   }
+
+  .metrics-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .metric-card {
+    flex: 1 1 160px;
+  }
 }
 
-/* Mobile */
+@media (max-width: 1024px) {
+  .version-rail {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 640px) {
+  .workspace-page {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .collections-panel,
+  .version-rail,
+  .editor-panel,
+  .metrics-panel {
+    padding: 18px;
+  }
+
+  .version-rail {
+    padding: 16px 18px;
+  }
+
+  .version-rail-header {
+    padding-right: 14px;
+    margin-right: 14px;
+  }
+
+  .editor-header {
+    height: auto;
+    min-height: 26px;
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .editor-header-title {
+    flex: 1 1 100%;
+  }
+
+  .editor-header-actions {
+    margin-left: auto;
+  }
+
+  .editor-settings {
+    gap: 10px;
+  }
+
+  .editor-actions {
+    width: 100%;
+  }
+
+  .editor-actions .btn {
+    flex: 1 1 auto;
+  }
+
+  .metrics-list {
+    flex-direction: column;
+  }
+
+  .metric-card {
+    flex: 1 1 auto;
+  }
+
   .editor-footer {
     align-items: flex-start;
   }
@@ -1144,5 +1950,30 @@
   .quality-dim-row {
     grid-template-columns: 92px 1fr 36px;
     gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .version-rail {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .version-rail-header {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    padding-right: 0;
+    margin-right: 0;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  .collection-item {
+    padding: 10px 12px;
+  }
+
+  .prompt-sublist {
+    margin-left: 4px;
   }
 }

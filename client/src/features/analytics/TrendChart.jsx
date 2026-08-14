@@ -1,7 +1,4 @@
-// Minimal, dependency-free SVG line chart. No new frontend package
-// is installed for this — the project has no visible chart library
-// already installed, so this hand-built component avoids adding an
-// unverified dependency for what is, functionally, a simple line.
+
 
 const WIDTH = 600;
 const HEIGHT = 160;

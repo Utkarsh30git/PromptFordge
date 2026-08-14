@@ -1,6 +1,4 @@
-/* ==========================================
-   HERO
-========================================== */
+
 
 .hero {
   position: relative;
@@ -113,10 +111,6 @@
   flex-wrap: wrap;
   gap: 22px;
 }
-
-/* ==========================================
-   HERO PREVIEW
-========================================== */
 
 .hero-preview {
   width: 100%;
@@ -250,17 +244,13 @@
   animation: blink 1.4s infinite;
 }
 
-/* ==========================================
-   RESPONSIVE
-========================================== */
-
 @media (max-width: 640px) {
   .hero {
     padding-top: 100px;
   }
 
   .hero-preview {
-    aspect-ratio: auto; /* let content define height instead of clipping it */
+    aspect-ratio: auto;
     height: auto;
     border-radius: 16px;
   }
@@ -270,7 +260,7 @@
   }
 
   .preview-file {
-    display: none; /* avoid crowding tiny header */
+    display: none;
   }
 
   .preview-metrics {

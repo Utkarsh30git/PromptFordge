@@ -17,18 +17,12 @@ const DIMENSION_ORDER = [
   "outputDefinition",
 ];
 
-// Low/Medium/Strong bands, mapped to the existing theme variables —
-// no new colors introduced. Same 0-4 / 4-7 / 7-10 bands used for
-// both individual dimensions and the overall score.
 const scoreTone = (value) => {
   if (value >= 7) return "strong";
   if (value >= 4) return "medium";
   return "low";
 };
 
-// Analysis is advisory and keyed off the currently viewed version —
-// this panel reads straight from the workspace store, same as
-// OptimizeModal, so Workspace.jsx just has to render it.
 const QualityPanel = () => {
   const {
     activePromptId,
@@ -47,7 +41,7 @@ const QualityPanel = () => {
     try {
       await analyzePrompt();
     } catch {
-      // analysisError is already set on the store and rendered below
+
     }
   };
 
@@ -56,7 +50,7 @@ const QualityPanel = () => {
     try {
       await optimizePrompt();
     } catch {
-      // optimizationError surfaces via Workspace's existing status toast
+
     }
   };
 
@@ -99,7 +93,7 @@ const QualityPanel = () => {
             and well structured it is.
           </p>
           <Button
-            variant="ghost"
+            variant="emerald-ghost"
             onClick={handleAnalyze}
             disabled={!hasPrompt}
           >

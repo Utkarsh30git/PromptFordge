@@ -56,11 +56,7 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // Updates the currently authenticated user's editable profile
-  // fields (name only, today). Throws on failure so the caller
-  // (Settings page) can show the backend's validation message —
-  // unlike fetchCurrentUser/logout, which are fire-and-forget on
-  // failure, a failed profile edit needs to surface to the user.
+
   updateProfile: async (name) => {
     try {
       const response = await axios.patch(
@@ -77,10 +73,7 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // Updates the user's avatar: either a PromptForge preset id
-  // ("preset-07") or the "google" sentinel to switch back to their
-  // Google profile picture. Same throw-on-failure shape as
-  // updateProfile so the picker modal can show the backend's error.
+
   updateAvatar: async (avatar) => {
     try {
       const response = await axios.patch(

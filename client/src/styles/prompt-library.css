@@ -1,9 +1,4 @@
-/* ==========================================
-   PROMPT LIBRARY — shared page shell
-   Reuses .dashboard-page / .dashboard-header / .dashboard-kicker /
-   .dashboard-title / .dashboard-subtitle from dashboard.css, and
-   .empty-state / .settings-tab / .settings-input from app-pages.css.
-========================================== */
+
 
 .library-page {
   padding: clamp(28px, 22px + 2vw, 48px) 0 var(--space-xxl);
@@ -26,10 +21,6 @@
   gap: 12px;
   flex-shrink: 0;
 }
-
-/* ==========================================
-   CONTROLS — search / filter tabs / sort
-========================================== */
 
 .library-controls {
   display: flex;
@@ -71,27 +62,157 @@
   background: #151517;
 }
 
-.library-sort {
-  background: #17171a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.sort-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sort-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  background: linear-gradient(180deg, #1c1c1f 0%, #17171a 100%);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 9px 12px;
+  padding: 9px 13px;
 
   color: var(--text);
   font-size: 13.5px;
   font-family: inherit;
+  line-height: 1.2;
+  white-space: nowrap;
 
-  outline: none;
   cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.library-sort:focus {
+.sort-dropdown-trigger:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.sort-dropdown-trigger:focus-visible {
   border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-soft);
 }
 
-/* ==========================================
-   PROMPT GRID + CARD
-========================================== */
+.sort-dropdown-trigger.open {
+  border-color: var(--amber);
+  background: linear-gradient(180deg, #1f1f22 0%, #19191c 100%);
+  box-shadow: 0 0 0 3px var(--amber-soft);
+}
+
+.sort-dropdown-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.sort-dropdown-caption {
+  color: var(--text-dimmer);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sort-dropdown-chevron {
+  color: var(--text-dim);
+  transition: transform 0.18s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sort-dropdown-trigger.open .sort-dropdown-chevron {
+  color: var(--amber);
+  transform: rotate(180deg);
+}
+
+.sort-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+
+  min-width: 168px;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+
+  background: #1a1a1d;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+
+  transform-origin: top right;
+}
+
+.sort-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 10px;
+
+  color: var(--text-dim);
+  font-size: 13.5px;
+  font-family: inherit;
+  text-align: left;
+
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.sort-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.sort-dropdown-item.active {
+  color: var(--amber);
+  background: var(--amber-soft);
+  font-weight: 600;
+}
+
+.sort-dropdown-check {
+  color: var(--amber);
+  flex-shrink: 0;
+}
+
+.sort-dropdown-full {
+  width: 100%;
+}
+
+.sort-dropdown-full .sort-dropdown-trigger {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.sort-dropdown-full .sort-dropdown-menu {
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  transform-origin: top center;
+}
+
+.sort-dropdown-trigger:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.sort-dropdown-placeholder {
+  color: var(--text-dim);
+  font-weight: 400;
+}
 
 .library-grid {
   display: grid;
@@ -115,6 +236,7 @@
 .prompt-card:hover {
   border-color: rgba(255, 177, 0, 0.2);
   transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28), 0 0 26px var(--emerald-glow);
 }
 
 .prompt-card-skeleton {
@@ -179,6 +301,25 @@
 
 .prompt-card-fav.active {
   color: var(--amber);
+  animation: fav-pop 0.3s ease-out;
+}
+
+@keyframes fav-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prompt-card-fav.active {
+    animation: none;
+  }
 }
 
 .prompt-card-preview {
@@ -212,6 +353,11 @@
   font-weight: 600;
 }
 
+.prompt-card-meta .prompt-card-chip:first-child {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+}
+
 .prompt-card-updated {
   font-size: 11.5px;
   color: var(--text-dimmer);
@@ -225,10 +371,6 @@
   gap: 10px;
   margin-top: 2px;
 }
-
-/* ==========================================
-   ••• MENU (prompt card + collection card)
-========================================== */
 
 .prompt-card-menu-wrap {
   position: relative;
@@ -301,9 +443,15 @@
   color: #ff8b8b;
 }
 
-/* ==========================================
-   COLLECTIONS GRID + CARD
-========================================== */
+.prompt-card-menu-item-danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.prompt-card-menu-divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--border);
+}
 
 .collections-grid {
   display: grid;
@@ -328,6 +476,7 @@
 .collection-card:hover {
   border-color: rgba(255, 177, 0, 0.2);
   transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28), 0 0 26px var(--emerald-glow);
 }
 
 .collection-card-skeleton {
@@ -353,6 +502,10 @@
 }
 
 .collection-card-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
@@ -362,14 +515,21 @@
   white-space: nowrap;
 }
 
+.collection-card-name::before {
+  content: "";
+  flex-shrink: 0;
+  width: 13px;
+  height: 10px;
+  border-radius: 2px 3px 3px 3px;
+  background: var(--emerald-soft);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  position: relative;
+}
+
 .collection-card-count {
   font-size: 12.5px;
   color: var(--text-dim);
 }
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
 
 @media (max-width: 1024px) {
   .library-grid,

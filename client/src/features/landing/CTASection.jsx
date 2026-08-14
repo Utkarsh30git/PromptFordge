@@ -16,7 +16,7 @@ const CTASection = () => {
         </p>
 
         <div className="cta-actions">
-          <Button variant="amber">Get Started — it's free</Button>
+          <Button variant="amber" >Get Started — it's free</Button>
         </div>
       </Container>
     </section>

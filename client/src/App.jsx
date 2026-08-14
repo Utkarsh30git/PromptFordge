@@ -29,13 +29,13 @@ function App() {
 
   return (
     <Routes>
-      {/* Public routes */}
+      {}
       <Route path="/" element={<Landing />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Protected routes — share the authenticated app shell (nav + layout) */}
+      {}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />

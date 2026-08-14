@@ -1,15 +1,13 @@
 @import "tailwindcss";
 
-/* Design tokens */
 @import "./theme.css";
 
-/* Keyframes shared across components */
 @import "./animations.css";
 
-/* Shared primitives: Container, Button, SectionHeading */
 @import "./utilities.css";
 
-/* Per-section styles */
+@import "./patterns.css";
+
 @import "./navbar.css";
 @import "./user-menu.css";
 @import "./app-shell.css";
@@ -37,12 +35,12 @@ html {
 }
 
 html {
-  scrollbar-width: none;       /* Firefox */
-  -ms-overflow-style: none;    /* old Edge / IE */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 html::-webkit-scrollbar {
-  display: none;               /* Chrome, Safari, new Edge */
+  display: none;
 }
 
 html,
@@ -92,4 +90,21 @@ button {
 :focus-visible {
   outline: 2px solid var(--amber);
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-stat-card,
+  .quick-action-card,
+  .prompt-card,
+  .collection-card,
+  .prompt-list-item {
+    transition: none !important;
+  }
+
+  .dashboard-stat-card:hover,
+  .quick-action-card:hover,
+  .prompt-card:hover,
+  .collection-card:hover {
+    transform: none !important;
+  }
 }

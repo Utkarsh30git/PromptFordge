@@ -1,8 +1,4 @@
-/* ==========================================
-   USER MENU
-   Shared by the marketing Navbar (logged-in state)
-   and the authenticated AppNavbar.
-========================================== */
+
 
 .user-menu {
   position: relative;
@@ -28,10 +24,6 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
-/* Avatar rules (.user-avatar / .user-avatar-fallback) now live as
-   the shared .avatar-image / .avatar-fallback classes in
-   utilities.css, used via components/ui/UserAvatar.jsx. */
-
 .user-name {
   font-size: 14px;
   font-weight: 500;
@@ -52,10 +44,6 @@
 .user-chevron.open {
   transform: rotate(180deg);
 }
-
-/* ==========================================
-   DROPDOWN
-========================================== */
 
 .user-dropdown {
   position: absolute;
@@ -137,10 +125,6 @@
   background: rgba(248, 113, 113, 0.1);
   color: #ff9d9d;
 }
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
 
 @media (max-width: 480px) {
   .user-name {

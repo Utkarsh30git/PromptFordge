@@ -5,9 +5,6 @@ import Prompt from "../models/Prompt.js";
 
 const RANGE_DAYS = { "7d": 7, "30d": 30, "90d": 90 };
 
-// Returns a Date to filter createdAt >= since, or null for "all"
-// (no lower bound). Invalid/unrecognized values fall back to 30d,
-// matching the product's stated default.
 const resolveRangeStart = (range) => {
   if (range === "all") return null;
 
@@ -19,12 +16,6 @@ const resolveRangeStart = (range) => {
 
 const dateMatch = (since) => (since ? { createdAt: { $gte: since } } : {});
 
-// GET /api/analytics?range=7d|30d|90d|all
-// Everything here is scoped to req.userId (from authMiddleware) —
-// every match stage below includes it, and it is never taken from
-// the request body/query. All aggregation happens in MongoDB, not
-// in Node/React, per the "no dumping every record into the browser"
-// requirement.
 export const getAnalytics = async (req, res) => {
   try {
     const range = ["7d", "30d", "90d", "all"].includes(req.query.range)
@@ -155,14 +146,12 @@ export const getAnalytics = async (req, res) => {
         .select("promptId versionAId versionBId winner createdAt"),
     ]);
 
-    // ---- overview ----
     const totalRuns = runStatsAgg[0]?.totalRuns ?? 0;
     const avgLatency = runStatsAgg[0]?.avgLatency ?? null;
     const totalTokens = spendAgg[0]?.totalTokens ?? 0;
     const totalCost = spendAgg[0]?.totalCost ?? 0;
     const avgQuality = qualityAgg[0]?.avgQuality ?? null;
 
-    // ---- top prompts (needs titles + optional quality score) ----
     const topPromptIds = topPromptsAgg.map((p) => p._id);
 
     const [topPromptDocs, topPromptQuality] = await Promise.all([
@@ -188,7 +177,6 @@ export const getAnalytics = async (req, res) => {
       avgQuality: qualityByPromptId.get(p._id.toString()) ?? null,
     }));
 
-    // ---- model usage (percentages) ----
     const modelUsageTotal = modelUsageAgg.reduce((sum, m) => sum + m.count, 0);
     const modelUsage = modelUsageAgg.map((m) => ({
       model: m._id,
@@ -199,7 +187,6 @@ export const getAnalytics = async (req, res) => {
           : 0,
     }));
 
-    // ---- comparison summary ----
     const compStats = comparisonAgg[0];
     const comparisonSummary =
       compStats && compStats.total > 0
@@ -212,7 +199,6 @@ export const getAnalytics = async (req, res) => {
           }
         : null;
 
-    // ---- recent activity (merge two small, already-sorted lists) ----
     const activityPromptIds = [
       ...new Set([
         ...recentRuns.map((r) => r.promptId.toString()),
@@ -227,7 +213,7 @@ export const getAnalytics = async (req, res) => {
     );
 
     const runActivity = recentRuns.map((r) => ({
-      type: r.type, // "run" | "optimize"
+      type: r.type,
       promptTitle: activityTitleById.get(r.promptId.toString()) || "Untitled prompt",
       createdAt: r.createdAt,
     }));

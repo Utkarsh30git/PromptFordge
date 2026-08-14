@@ -1,11 +1,25 @@
-/* ==========================================
-   SIMPLE APP PAGES
-   Shared shell for pages that only need a heading +
-   content block (Compare, Analytics, Settings).
-========================================== */
+
 
 .app-page {
   padding: clamp(28px, 22px + 2vw, 48px) 0 var(--space-xxl);
+  animation: page-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-page,
+  .dashboard-page,
+  .library-page {
+    animation: none !important;
+  }
 }
 
 .app-page-heading {
@@ -17,11 +31,10 @@
   font-size: clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem);
 }
 
-/* ==========================================
-   EMPTY STATE
-========================================== */
-
 .empty-state {
+  position: relative;
+  overflow: hidden;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -35,6 +48,19 @@
   background: linear-gradient(180deg, #18181b 0%, #121214 100%);
 
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.empty-state::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 177, 0, 0.3),
+    transparent
+  );
 }
 
 .empty-state-kicker {
@@ -58,11 +84,10 @@
   margin-bottom: 6px;
 }
 
-/* ==========================================
-   SETTINGS
-========================================== */
-
 .settings-card {
+  position: relative;
+  overflow: hidden;
+
   max-width: 480px;
   margin-bottom: var(--space-lg);
 
@@ -70,6 +95,25 @@
   border: 1px solid var(--border-soft);
   background: #151517;
   padding: 6px 20px;
+
+  transition: border-color 0.2s ease;
+}
+
+.settings-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.settings-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 177, 0, 0.22),
+    transparent
+  );
 }
 
 .settings-row {
@@ -117,13 +161,6 @@
   }
 }
 
-/* ==========================================
-   SETTINGS — TABS
-   Same pill-tab recipe as Analytics' .range-selector /
-   .range-btn, under Settings-specific class names so the two
-   features can evolve independently.
-========================================== */
-
 .settings-tabs {
   display: inline-flex;
   gap: 4px;
@@ -154,10 +191,6 @@
   color: var(--amber);
 }
 
-/* ==========================================
-   SETTINGS — PROFILE
-========================================== */
-
 .settings-card-wide {
   max-width: 560px;
   padding: 24px;
@@ -172,10 +205,6 @@
   margin-bottom: 22px;
   border-bottom: 1px solid var(--border-soft);
 }
-
-/* Avatar rules (.settings-avatar / .settings-avatar-fallback) now
-   live as the shared .avatar-image / .avatar-fallback classes in
-   utilities.css, used via components/ui/UserAvatar.jsx. */
 
 .settings-avatar-cell {
   display: flex;
@@ -300,10 +329,6 @@
   font-weight: 600;
 }
 
-/* ==========================================
-   SETTINGS — USAGE / SECURITY
-========================================== */
-
 .settings-credits {
   color: var(--teal);
   font-weight: 700;
@@ -361,14 +386,6 @@
   }
 }
 
-/* ==========================================
-   AVATAR PICKER MODAL
-   Same overlay/card recipe as Workspace's .optimize-overlay /
-   .optimize-modal (dark blurred backdrop, gradient card, amber-tinted
-   shadow) under Settings-specific class names, so it feels like part
-   of PromptForge without coupling the two features together.
-========================================== */
-
 .avatar-picker-overlay {
   position: fixed;
   inset: 0;
@@ -381,12 +398,16 @@
   padding: clamp(1rem, 0.5rem + 3vw, 2.5rem);
   background: rgba(6, 6, 7, 0.72);
   backdrop-filter: blur(6px);
+
+  animation: overlay-fade 0.2s ease both;
 }
 
 .avatar-picker-modal {
   width: 100%;
   max-width: 460px;
   max-height: 85vh;
+
+  animation: modal-enter 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   display: flex;
   flex-direction: column;
@@ -487,6 +508,13 @@
   display: flex;
   gap: 12px;
   margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-picker-overlay,
+  .avatar-picker-modal {
+    animation: none;
+  }
 }
 
 @media (max-width: 480px) {

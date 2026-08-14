@@ -28,9 +28,6 @@ const formatRelativeDay = (date) => {
   return formatDate(date);
 };
 
-// Derived, not stored — PromptVersion only persists content/versionNumber/
-// createdAt, so the "short preview" shown per version is generated
-// client-side from that content rather than inventing a new summary field.
 const buildPreview = (content) => {
   if (!content) return "Empty version.";
   const flat = content.replace(/\s+/g, " ").trim();
@@ -53,7 +50,7 @@ const VersionHistoryPanel = () => {
   } = useWorkspaceStore();
 
   const [expandedVersionNumber, setExpandedVersionNumber] = useState(null);
-  const [confirmingRestore, setConfirmingRestore] = useState(null); // versionNumber
+  const [confirmingRestore, setConfirmingRestore] = useState(null);
 
   useEffect(() => {
     if (!versionHistoryOpen) return;
@@ -67,8 +64,6 @@ const VersionHistoryPanel = () => {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [versionHistoryOpen, confirmingRestore, closeVersionHistory]);
 
-  // Reset local (preview-only, non-persisted) UI state each time the
-  // panel is opened fresh, so a stale expanded row doesn't linger.
   useEffect(() => {
     if (versionHistoryOpen) {
       setExpandedVersionNumber(null);
@@ -78,9 +73,6 @@ const VersionHistoryPanel = () => {
 
   if (!versionHistoryOpen) return null;
 
-  // Newest first for display, matching the mockup — the fetch/order
-  // in the store stays ascending (v1..vN) since that's what the
-  // version rail / selectVersion already rely on.
   const sortedVersions = [...versions].sort(
     (a, b) => b.versionNumber - a.versionNumber
   );
@@ -107,7 +99,7 @@ const VersionHistoryPanel = () => {
       await restoreVersion(versionNumber);
       setConfirmingRestore(null);
     } catch {
-      // restoreError is already set on the store and rendered below
+
     }
   };
 

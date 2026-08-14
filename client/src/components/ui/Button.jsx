@@ -14,6 +14,8 @@ const Button = ({
     ghost: "btn-ghost",
     teal: "btn-teal",
     danger: "btn-danger",
+    "emerald-ghost": "btn-emerald-ghost",
+    "cyan-ghost": "btn-cyan-ghost",
   };
 
   return (

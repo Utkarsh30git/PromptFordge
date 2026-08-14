@@ -1,24 +1,12 @@
-/* ==========================================
-   CONTAINER
-   Single layout primitive for section content.
-   Consumed by components/ui/Container.jsx.
-   (Previously duplicated: a `.container` rule lived
-   here unused while Container.jsx re-implemented the
-   same max-width/padding with Tailwind arbitrary values.)
-========================================== */
+
 
 .container {
   width: 100%;
   max-width: var(--container-width);
   margin: 0 auto;
-  padding: 0 clamp(1rem, 0.5rem + 2vw, 2rem); /* was: fixed px-8 (32px) */
+  padding: 0 clamp(1rem, 0.5rem + 2vw, 2rem);
   box-sizing: border-box;
 }
-
-/* ==========================================
-   BUTTON
-   Shared by Navbar + every landing section.
-========================================== */
 
 .btn {
   padding: 9px 18px;
@@ -71,17 +59,51 @@
   filter: brightness(1.08);
 }
 
+.btn-emerald-ghost {
+  color: var(--emerald);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  background: var(--emerald-soft);
+}
+
+.btn-emerald-ghost:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.16);
+}
+
+.btn-cyan-ghost {
+  color: var(--teal);
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  background: var(--teal-soft);
+}
+
+.btn-cyan-ghost:hover {
+  border-color: rgba(45, 212, 191, 0.45);
+  background: rgba(45, 212, 191, 0.16);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none !important;
+  }
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;
 }
-
-/* ==========================================
-   SECTION HEADING
-   Shared "kicker + title + description" block
-   used by Workspace and Compare sections.
-========================================== */
 
 .section-heading {
   width: 100%;
@@ -120,14 +142,6 @@
     margin-bottom: var(--space-md);
   }
 }
-
-/* ==========================================
-   AVATAR
-   Shared by UserAvatar.jsx (navbar, Settings, and anywhere
-   else a user's avatar is shown) and PresetAvatar.jsx (the
-   preset picker grid). Sizing is per-instance (inline style,
-   set by the `size` prop) — these rules only own shape/color.
-========================================== */
 
 .avatar-image {
   border-radius: 50%;

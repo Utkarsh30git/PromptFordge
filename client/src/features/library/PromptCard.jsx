@@ -1,18 +1,21 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
+import ConfirmModal from "./ConfirmModal";
 import { formatRelativeTime } from "../../utils/relativeTime";
 
 const buildPreview = (content) => {
   if (!content) return "No content yet.";
-  // Strip {{variable}} braces for a cleaner preview snippet, then trim.
+
   const flat = content.replace(/\s+/g, " ").trim();
   return flat.length > 110 ? `${flat.slice(0, 110)}…` : flat;
 };
 
-const PromptCard = ({ prompt, collections, onToggleFavorite, onMove }) => {
+const PromptCard = ({ prompt, collections, onToggleFavorite, onMove, onDelete }) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -29,6 +32,16 @@ const PromptCard = ({ prompt, collections, onToggleFavorite, onMove }) => {
   const collectionName = prompt.collectionId
     ? collections.find((c) => c._id === prompt.collectionId)?.name || "Collection"
     : "No Collection";
+
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
+    try {
+      await onDelete(prompt._id);
+    } finally {
+      setDeleting(false);
+      setConfirmingDelete(false);
+    }
+  };
 
   return (
     <div className="prompt-card">
@@ -95,6 +108,22 @@ const PromptCard = ({ prompt, collections, onToggleFavorite, onMove }) => {
                   {c.name}
                 </button>
               ))}
+
+              {onDelete && (
+                <>
+                  <div className="prompt-card-menu-divider" />
+                  <button
+                    type="button"
+                    className="prompt-card-menu-item prompt-card-menu-item-danger"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setConfirmingDelete(true);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -103,6 +132,17 @@ const PromptCard = ({ prompt, collections, onToggleFavorite, onMove }) => {
           Open
         </Button>
       </div>
+
+      {confirmingDelete && (
+        <ConfirmModal
+          title="Delete prompt"
+          description={`Delete "${prompt.title}" and all of its saved versions? This can't be undone.`}
+          confirmLabel={deleting ? "Deleting…" : "Delete"}
+          danger
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmingDelete(false)}
+        />
+      )}
     </div>
   );
 };

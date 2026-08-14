@@ -2,11 +2,6 @@ import { create } from "zustand";
 import * as promptsApi from "../services/promptsApi";
 import { extractVariables, findMissingVariables } from "../utils/promptVariables";
 
-// Compare has its own store rather than living inside workspaceStore:
-// it's a separate workflow (pick a prompt, pick two of its versions,
-// run a benchmark) that doesn't share the editor/session state
-// Workspace cares about. It reuses the same promptsApi client and
-// the same async-action-with-try/catch pattern as the other stores.
 const useCompareStore = create((set, get) => ({
   prompts: [],
   promptsLoading: false,
@@ -18,9 +13,6 @@ const useCompareStore = create((set, get) => ({
   versionAId: null,
   versionBId: null,
 
-  // Union of {{variables}} detected across whichever of A/B are
-  // currently selected — recomputed any time either selection
-  // changes. The SAME values are used to resolve both templates.
   variables: [],
   variableValues: {},
   missingVariables: [],
@@ -70,8 +62,6 @@ const useCompareStore = create((set, get) => ({
     }
   },
 
-  // Recomputes the union of {{variables}} across A/B whenever either
-  // selection changes, keeping any values still relevant.
   _recomputeVariables: () => {
     const { versions, versionAId, versionBId, variableValues } = get();
     const versionA = versions.find((v) => v._id === versionAId);
@@ -130,11 +120,6 @@ const useCompareStore = create((set, get) => ({
   },
   setTestInput: (value) => set({ testInput: value }),
 
-  // Pre-selects a prompt + two versions to compare — used when Compare
-  // is launched from elsewhere (e.g. the Workspace's Version History
-  // panel: "Current vs Selected") instead of picked manually on this
-  // page. Reuses selectPrompt for the version fetch so there's still
-  // exactly one place that loads versions for comparison.
   startComparison: async ({ promptId, versionAId, versionBId }) => {
     await get().selectPrompt(promptId);
     set({ versionAId, versionBId, result: null, compareError: null });

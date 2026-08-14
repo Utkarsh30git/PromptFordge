@@ -1,9 +1,5 @@
-// Centralized model + pricing configuration for prompt execution.
-//
-// Prices are USD per 1,000,000 tokens, matching OpenAI's published API
-// pricing (verified against openai.com/api/pricing as of this writing).
-// To support a new model later: add an entry here — nothing in the
-// controller or service layer needs to change.
+
+
 const MODEL_PRICING = {
   "gpt-4.1": {
     label: "GPT-4.1",
@@ -19,7 +15,6 @@ export const isSupportedModel = (model) =>
 
 export const getSupportedModels = () => Object.keys(MODEL_PRICING);
 
-// usage is OpenAI's usage object: { prompt_tokens, completion_tokens, total_tokens }
 export const calculateCost = (model, usage) => {
   const pricing = MODEL_PRICING[model];
   if (!pricing || !usage) return null;

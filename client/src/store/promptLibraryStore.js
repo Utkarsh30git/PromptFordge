@@ -2,13 +2,6 @@ import { create } from "zustand";
 import * as promptsApi from "../services/promptsApi";
 import * as collectionsApi from "../services/collectionsApi";
 
-// Dedicated store for the Prompt Library + Collections experience.
-// Deliberately separate from workspaceStore: that store owns the
-// single "currently open in the editor" prompt (content, variables,
-// versions, run/optimize/analyze state); this store owns the
-// browsable list (search/filter/sort/favorite/move) and never touches
-// editor state. Keeping them apart avoids two sources of truth fighting
-// over the same prompt while the user has it open in both places.
 const usePromptLibraryStore = create((set, get) => ({
   prompts: [],
   promptsLoading: false,
@@ -19,11 +12,9 @@ const usePromptLibraryStore = create((set, get) => ({
   collectionsError: null,
 
   search: "",
-  filter: "all", // all | favorites | recent
-  sort: "newest", // newest | oldest | name_asc | name_desc
-  activeCollectionId: null, // set when viewing a single collection
-
-  // ---------------- Prompts ----------------
+  filter: "all",
+  sort: "newest",
+  activeCollectionId: null,
 
   fetchPrompts: async () => {
     const { search, filter, sort, activeCollectionId } = get();
@@ -63,9 +54,6 @@ const usePromptLibraryStore = create((set, get) => ({
 
     const nextValue = !prompt.isFavorite;
 
-    // Optimistic update — the star should feel instant. If the
-    // "Favorites" tab is active, an unfavorite should also drop the
-    // card out of the current list rather than leaving a stale entry.
     set((state) => ({
       prompts:
         state.filter === "favorites" && !nextValue
@@ -79,7 +67,7 @@ const usePromptLibraryStore = create((set, get) => ({
       await promptsApi.setPromptFavorite(promptId, nextValue);
     } catch (error) {
       console.error("Failed to update favorite:", error);
-      // Roll back on failure and refetch to guarantee consistency.
+
       get().fetchPrompts();
     }
   },
@@ -89,8 +77,7 @@ const usePromptLibraryStore = create((set, get) => ({
       await promptsApi.updatePromptMeta(promptId, {
         collectionId: collectionId || "",
       });
-      // Refetch — moving out of the currently-viewed collection means
-      // the prompt should disappear from this list.
+
       get().fetchPrompts();
     } catch (error) {
       console.error("Failed to move prompt:", error);
@@ -111,7 +98,12 @@ const usePromptLibraryStore = create((set, get) => ({
     }
   },
 
-  // ---------------- Collections ----------------
+  deletePrompt: async (promptId) => {
+    await promptsApi.deletePrompt(promptId);
+    set((state) => ({
+      prompts: state.prompts.filter((p) => p._id !== promptId),
+    }));
+  },
 
   fetchCollections: async () => {
     set({ collectionsLoading: true, collectionsError: null });

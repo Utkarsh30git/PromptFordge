@@ -1,9 +1,8 @@
-/* ==========================================
-   DASHBOARD
-========================================== */
+
 
 .dashboard-page {
   padding: clamp(28px, 22px + 2vw, 48px) 0 var(--space-xxl);
+  animation: page-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .dashboard-header {
@@ -46,10 +45,6 @@
   flex-shrink: 0;
 }
 
-/* ==========================================
-   SECTIONS
-========================================== */
-
 .dashboard-section {
   margin-bottom: var(--space-lg);
 }
@@ -68,6 +63,60 @@
   gap: 16px;
 }
 
+.dashboard-stat-card {
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(180deg, #17171a 0%, #141416 100%);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: clamp(16px, 13px + 0.8vw, 22px);
+
+  transition: border-color 0.25s ease, transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.dashboard-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 177, 0, 0.35),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.dashboard-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), 0 0 40px var(--emerald-glow);
+}
+
+.dashboard-stat-card:hover::before {
+  opacity: 1;
+}
+
+.dashboard-stat-label {
+  color: #7d7d84;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.dashboard-stat-value {
+  color: var(--text);
+  font-size: clamp(1.5rem, 1.3rem + 0.9vw, 1.875rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: "JetBrains Mono", monospace;
+}
+
 .dashboard-columns {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
@@ -79,10 +128,6 @@
 .dashboard-col {
   margin-bottom: 0;
 }
-
-/* ==========================================
-   RECENT PROMPTS
-========================================== */
 
 .prompt-list {
   display: flex;
@@ -103,11 +148,29 @@
 
   padding: 12px 12px;
   border-radius: 12px;
-  transition: background 0.2s ease;
+  border-left: 2px solid transparent;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .prompt-list-item:hover {
   background: rgba(255, 255, 255, 0.03);
+  border-left-color: rgba(255, 177, 0, 0.4);
+}
+
+.dashboard-list-skeleton-row {
+  height: 46px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+
+  background: linear-gradient(100deg, #151517 30%, #1b1b1e 50%, #151517 70%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-list-skeleton-row {
+    animation: none;
+  }
 }
 
 .prompt-list-main {
@@ -135,10 +198,6 @@
   font-size: 12.5px;
   color: var(--text-dim);
 }
-
-/* ==========================================
-   RECENT ACTIVITY
-========================================== */
 
 .activity-list {
   display: flex;
@@ -200,10 +259,6 @@
   flex-shrink: 0;
 }
 
-/* ==========================================
-   QUICK ACTIONS
-========================================== */
-
 .quick-actions-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -230,7 +285,7 @@
 .quick-action-card:hover {
   transform: translateY(-4px);
   border-color: rgba(255, 177, 0, 0.2);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3), 0 0 30px var(--emerald-glow);
 }
 
 .quick-action-title {
@@ -244,10 +299,6 @@
   line-height: 1.5;
   color: var(--text-dim);
 }
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
 
 @media (max-width: 1024px) {
   .dashboard-stats-grid {

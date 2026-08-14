@@ -7,16 +7,9 @@ import {
   USE_GOOGLE_AVATAR,
 } from "../../constants/avatarPresets";
 
-// Self-contained "choose your avatar" modal. Nothing here saves
-// automatically — clicking a tile only updates local selection state;
-// the actual PATCH only fires on "Save Avatar". "Cancel" (or the
-// backdrop/Escape) discards the pending selection entirely.
 const AvatarPickerModal = ({ open, user, onClose, onSave }) => {
   const initials = user?.name?.charAt(0).toUpperCase() || "?";
 
-  // What's currently active: the Google sentinel if `avatar` is the
-  // user's Google URL, otherwise a preset id (or nothing, for very
-  // old/edge-case accounts with neither).
   const currentSelection =
     user?.avatar && isPresetAvatarId(user.avatar)
       ? user.avatar
@@ -28,14 +21,12 @@ const AvatarPickerModal = ({ open, user, onClose, onSave }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Reset local selection to whatever's actually saved every time
-  // the modal opens, so a previous unsaved pick never lingers.
   useEffect(() => {
     if (open) {
       setSelected(currentSelection);
       setError("");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [open, user?.avatar]);
 
   useEffect(() => {

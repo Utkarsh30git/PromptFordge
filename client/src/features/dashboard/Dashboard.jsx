@@ -79,9 +79,6 @@ const Dashboard = () => {
 
   const firstName = user?.name?.split(" ")[0] || "there";
 
-  // Reuses the same analytics aggregation and API client the
-  // Analytics page uses — a fixed 30-day snapshot, independent of
-  // whatever time range the user may have selected on that page.
   const [overview, setOverview] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [recentPrompts, setRecentPrompts] = useState([]);
@@ -118,7 +115,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-page">
       <Container>
-        {/* Header */}
+        {}
         <motion.div
           className="dashboard-header"
           variants={fadeUp}
@@ -146,7 +143,7 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        {/* Overview */}
+        {}
         <motion.section
           className="dashboard-section"
           variants={fadeUp}
@@ -157,34 +154,29 @@ const Dashboard = () => {
           <p className="dashboard-section-label mono">Overview</p>
 
           <div className="dashboard-stats-grid">
-            <div className="analytics-card">
-              <div className="analytics-label">Total Runs</div>
-              <div className="analytics-value">
-                {loading ? "—" : overview?.totalRuns ?? 0}
+            {[
+              { label: "Total Runs", value: loading ? "—" : overview?.totalRuns ?? 0 },
+              { label: "Tokens Used", value: loading ? "—" : formatTokens(overview?.totalTokens) },
+              { label: "Estimated Cost", value: loading ? "—" : formatCost(overview?.totalCost) },
+              { label: "Avg Score", value: loading ? "—" : formatScore(overview?.avgQuality) },
+            ].map((stat, i) => (
+              <div className="dashboard-stat-card" key={stat.label}>
+                <div className="dashboard-stat-label">{stat.label}</div>
+                <motion.div
+                  className="dashboard-stat-value"
+                  key={`${stat.label}-${loading}`}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: loading ? 0 : 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {stat.value}
+                </motion.div>
               </div>
-            </div>
-            <div className="analytics-card">
-              <div className="analytics-label">Tokens Used</div>
-              <div className="analytics-value">
-                {loading ? "—" : formatTokens(overview?.totalTokens)}
-              </div>
-            </div>
-            <div className="analytics-card">
-              <div className="analytics-label">Estimated Cost</div>
-              <div className="analytics-value">
-                {loading ? "—" : formatCost(overview?.totalCost)}
-              </div>
-            </div>
-            <div className="analytics-card">
-              <div className="analytics-label">Avg Score</div>
-              <div className="analytics-value">
-                {loading ? "—" : formatScore(overview?.avgQuality)}
-              </div>
-            </div>
+            ))}
           </div>
         </motion.section>
 
-        {/* Recent prompts + activity */}
+        {}
         <div className="dashboard-columns">
           <motion.section
             className="dashboard-section dashboard-col"
@@ -195,13 +187,21 @@ const Dashboard = () => {
           >
             <p className="dashboard-section-label mono">Recent Prompts</p>
 
+            {loading && (
+              <div className="prompt-list">
+                {[0, 1, 2].map((i) => (
+                  <div className="dashboard-list-skeleton-row" key={i} />
+                ))}
+              </div>
+            )}
+
             {!loading && recentPrompts.length === 0 && (
               <p className="panel-empty-hint">
                 No prompts yet — create one in the Workspace.
               </p>
             )}
 
-            {recentPrompts.length > 0 && (
+            {!loading && recentPrompts.length > 0 && (
               <div className="prompt-list">
                 {recentPrompts.map((prompt) => (
                   <div className="prompt-list-item" key={prompt._id}>
@@ -233,13 +233,21 @@ const Dashboard = () => {
           >
             <p className="dashboard-section-label mono">Recent Activity</p>
 
+            {loading && (
+              <div className="activity-list">
+                {[0, 1, 2].map((i) => (
+                  <div className="dashboard-list-skeleton-row" key={i} />
+                ))}
+              </div>
+            )}
+
             {!loading && recentActivity.length === 0 && (
               <p className="panel-empty-hint">
                 Run, optimize, or compare a prompt to see activity here.
               </p>
             )}
 
-            {recentActivity.length > 0 && (
+            {!loading && recentActivity.length > 0 && (
               <div className="activity-list">
                 {recentActivity.map((item, i) => (
                   <div className="activity-item" key={i}>
@@ -262,7 +270,7 @@ const Dashboard = () => {
           </motion.section>
         </div>
 
-        {/* Quick actions */}
+        {}
         <motion.section
           className="dashboard-section"
           variants={fadeUp}

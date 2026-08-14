@@ -1,66 +1,67 @@
 :root{
 
-    /* Background */
+    
   
     --bg:#0A0A0B;
     --bg-alt:#101012;
   
-    /* Surfaces */
+    
   
     --surface:#151517;
     --surface-2:#1B1B1E;
   
-    /* Borders */
+    
   
     --border:rgba(255,255,255,0.09);
     --border-soft:rgba(255,255,255,0.05);
   
-    /* Text */
+    
   
     --text:#F5F4EF;
     --text-dim:#9A9A9F;
     --text-dimmer:#6B6B70;
   
-    /* Brand */
+    
   
     --amber:#FFB100;
     --amber-soft:rgba(255,177,0,0.12);
   
     --teal:#2DD4BF;
     --teal-soft:rgba(45,212,191,0.12);
-  
+
+    
+    --emerald:#34D399;
+    --emerald-soft:rgba(52,211,153,0.10);
+    --emerald-glow:rgba(16,185,129,0.08);
+
     --green:#4ADE80;
     --red:#F87171;
   
-    /* Radius */
+    
   
     --radius:14px;
 
-    /* Layout widths (single source of truth — no hardcoded
-       max-width values should appear anywhere else) */
+    --app-header-height: 72px;
 
-    --container-width: 1180px;   /* section content (Hero, Workspace, Compare, ...) */
-    --nav-width: 1320px;         /* navbar is intentionally wider than section content */
+    --container-width: 1180px;   
+    --nav-width: 1320px;         
 
-    /* Fluid spacing scale — replaces one-off px margins/paddings
-       so every section shares the same rhythm */
+    
 
-    --space-md: clamp(1.25rem, 1rem + 1vw, 2.75rem);     /* was 44px */
-    --space-lg: clamp(2rem, 1.6rem + 1.8vw, 4.5rem);     /* was 72px/90px */
-    --space-xl: clamp(2.5rem, 1.9rem + 2.6vw, 6.25rem);  /* was 100px */
-    --space-xxl: clamp(3rem, 2.2rem + 3.5vw, 8.75rem);   /* was 140px */
+    --space-md: clamp(1.25rem, 1rem + 1vw, 2.75rem);     
+    --space-lg: clamp(2rem, 1.6rem + 1.8vw, 4.5rem);     
+    --space-xl: clamp(2.5rem, 1.9rem + 2.6vw, 6.25rem);  
+    --space-xxl: clamp(3rem, 2.2rem + 3.5vw, 8.75rem);   
 
-    /* Fluid type scale */
+    
 
-    --hero-title-size: clamp(2.75rem, 1.6rem + 5.5vw, 5.625rem);     /* was 90px */
-    --section-title-size: clamp(1.75rem, 1.35rem + 1.9vw, 3.125rem); /* was 50px */
+    --hero-title-size: clamp(2.75rem, 1.6rem + 5.5vw, 5.625rem);     
+    --section-title-size: clamp(1.75rem, 1.35rem + 1.9vw, 3.125rem); 
 
-    /* Breakpoints (documented here for reference — CSS has no
-       var() support inside @media, but keeping the numbers named
-       and centralized avoids silently-drifting magic numbers) */
+    
 
-    /* --bp-laptop: 1279px */
-    /* --bp-tablet: 1024px */
-    /* --bp-mobile: 640px  */
-    /* --bp-nav:    860px  */
+    
+    
+    
+    
   }

@@ -11,12 +11,12 @@ const GoogleLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Prevent duplicate initialization
+
     if (initializedRef.current) {
       return;
     }
 
-    // Google script hasn't loaded yet
+
     if (!window.google || !googleButtonRef.current) {
       console.warn("Google Identity Services is not loaded yet.");
       return;
@@ -52,10 +52,10 @@ const GoogleLogin = () => {
 
           console.log("Login successful:", result.data);
 
-          // Store authenticated user globally
+
           setUser(result.data.user);
 
-          // Redirect into the app after successful login
+
           navigate("/dashboard");
 
         } catch (error) {

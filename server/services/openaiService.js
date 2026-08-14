@@ -1,16 +1,8 @@
-// Talks to OpenAI's Chat Completions API. Uses Node's built-in fetch
-// (no extra SDK dependency) so nothing new needs to be installed.
-//
-// The OPENAI_API_KEY lives only here, on the server, read from
-// process.env — it is never sent to or readable by the frontend.
+
 
 const OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
 const REQUEST_TIMEOUT_MS = 30_000;
 
-// Shared low-level call — runPrompt (execute), optimizePrompt
-// (rewrite), and judgeComparison (score) all go through this so
-// there's exactly one place that talks to OpenAI, one timeout, and
-// one error-mapping strategy.
 const callChatCompletion = async ({
   messages,
   model,
@@ -78,17 +70,11 @@ const callChatCompletion = async ({
 
   return {
     text: message,
-    usage: data.usage || null, // { prompt_tokens, completion_tokens, total_tokens }
+    usage: data.usage || null,
     model: data.model || model,
   };
 };
 
-/**
- * Runs a single prompt against OpenAI and returns the generated text
- * plus usage/model info. Latency is intentionally left for the
- * caller (the controller) to measure, since that's where the full
- * request lifecycle — including DB lookups — is visible.
- */
 export const runPrompt = async ({ prompt, model, temperature }) => {
   const result = await callChatCompletion({
     messages: [{ role: "user", content: prompt }],
@@ -103,11 +89,6 @@ export const runPrompt = async ({ prompt, model, temperature }) => {
   };
 };
 
-// The optimizer is instructed to behave like an expert prompt
-// engineer: preserve the user's original intent while improving
-// clarity, specificity, structure and output format. It must never
-// invent facts/requirements the user didn't ask for, and must return
-// ONLY the rewritten prompt — no preamble, no explanation.
 const OPTIMIZE_SYSTEM_INSTRUCTION = `You are an expert prompt engineer. You will be given a user's draft prompt for an AI system. Rewrite it into a clearer, more effective prompt.
 
 Rules:
@@ -119,17 +100,8 @@ Rules:
 - The prompt may contain variable placeholders in the exact form {{variable_name}} (double curly braces, letters/numbers/underscores only). These are NOT text to rewrite or fill in — copy every {{variable_name}} placeholder into the output EXACTLY as written, character-for-character, in a position that still makes grammatical sense. Never guess or invent a value for a placeholder, never rename it, and never remove it.
 - Return ONLY the rewritten prompt itself. Do not include any preamble like "Here is your optimized prompt:", do not add explanations, and do not wrap it in quotes or code fences.`;
 
-// Low, fairly deterministic temperature — this is a rewriting task,
-// not a creative one, and the caller doesn't expose this as a
-// user-facing setting (unlike Run's model/temperature controls).
 const OPTIMIZE_TEMPERATURE = 0.3;
 
-/**
- * Sends the user's prompt to OpenAI with the optimizer system
- * instruction and returns the improved prompt text plus usage/model
- * info, in the same shape as runPrompt so callers can treat both
- * OpenAI operations consistently.
- */
 export const optimizePrompt = async ({ prompt, model }) => {
   const result = await callChatCompletion({
     messages: [
@@ -147,11 +119,6 @@ export const optimizePrompt = async ({ prompt, model }) => {
   };
 };
 
-// The judge evaluates two responses to the SAME test input and
-// scores each on relevance, accuracy, completeness, clarity, and
-// instruction-following — explicitly NOT on length, token count, or
-// latency. It must return only structured JSON so the backend can
-// validate it before ever handing it to the frontend.
 const JUDGE_SYSTEM_INSTRUCTION = `You are an expert AI response evaluator judging a head-to-head comparison between two prompts that were both run against the same test input.
 
 Score Response A and Response B independently, each from 0 to 10, based on:
@@ -172,14 +139,6 @@ const JUDGE_TEMPERATURE = 0.2;
 
 const isValidScore = (n) => typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 10;
 
-/**
- * Sends both prompts and both responses (plus the shared test input)
- * to the judge model and returns a validated score. Throws
- * error.code = "JUDGE_INVALID_RESPONSE" if the model's output can't
- * be parsed/validated as the expected shape — callers should treat
- * that the same as any other OpenAI failure (the comparison as a
- * whole did not succeed).
- */
 export const judgeComparison = async ({
   input,
   promptA,
@@ -242,13 +201,6 @@ ${responseB}`;
   };
 };
 
-// The analyzer reviews the PROMPT ITSELF — never executes it, never
-// rewrites it. It scores five dimensions (clarity, specificity,
-// context, structure, output definition), each 0-10, and returns a
-// short summary plus a handful of actionable, prompt-specific
-// suggestions. It must explicitly NOT penalize {{variable}}
-// placeholders, since those are intentional, reusable template slots
-// in PromptForge, not missing information.
 const ANALYZE_SYSTEM_INSTRUCTION = `You are an expert prompt engineering reviewer. You will be given a user's draft prompt for an AI system. Analyze the prompt itself — you do not execute it and you do not rewrite it.
 
 Score the prompt from 0 to 10 on each of these five dimensions:
@@ -274,15 +226,6 @@ const ANALYZE_CATEGORIES = new Set(ANALYZE_DIMENSIONS);
 
 const isValidAnalyzeScore = (n) => typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 10;
 
-/**
- * Sends the user's prompt to OpenAI with the analyzer system
- * instruction and returns validated per-dimension scores, a summary,
- * and suggestions. Does NOT compute an overall score — that's
- * deliberately left to the caller (see config/qualityScoring.js) so
- * it's always deterministic rather than model-supplied.
- * Throws error.code = "ANALYSIS_INVALID_RESPONSE" if the model's
- * output can't be parsed/validated as the expected shape.
- */
 export const analyzePromptQuality = async ({ prompt, model }) => {
   const result = await callChatCompletion({
     messages: [
@@ -334,9 +277,7 @@ export const analyzePromptQuality = async ({ prompt, model }) => {
   return {
     scores: cleanScores,
     summary: summary.trim(),
-    // Cap at 5 — the model is instructed to stay within 2-5, this is
-    // just a defensive ceiling so a misbehaving response can't blow
-    // up the UI with an unbounded list.
+
     suggestions: suggestions.slice(0, 5).map((s) => ({
       category: s.category,
       message: s.message.trim(),

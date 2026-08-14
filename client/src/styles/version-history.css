@@ -1,13 +1,26 @@
-/* ==========================================
-   VERSION HISTORY PANEL
-   Reuses the .optimize-overlay / .optimize-modal / .optimize-modal-*
-   overlay+card recipe from workspace.css — same dark blurred backdrop,
-   gradient card, and footer layout, just narrower and single-column
-   since this is a list rather than a two-up diff.
-========================================== */
+
 
 .version-history-modal {
   max-width: 560px;
+
+  animation: version-drawer-enter 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes version-drawer-enter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .version-history-modal {
+    animation: none;
+  }
 }
 
 .version-history-body {
@@ -29,7 +42,34 @@
 }
 
 .version-history-item {
-  padding: 14px 16px;
+  position: relative;
+  padding: 14px 16px 14px 34px;
+
+  animation: version-item-enter 0.22s ease-out both;
+}
+
+@keyframes version-item-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.version-history-item:nth-child(1) { animation-delay: 0ms; }
+.version-history-item:nth-child(2) { animation-delay: 25ms; }
+.version-history-item:nth-child(3) { animation-delay: 50ms; }
+.version-history-item:nth-child(4) { animation-delay: 75ms; }
+.version-history-item:nth-child(5) { animation-delay: 100ms; }
+.version-history-item:nth-child(6) { animation-delay: 125ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .version-history-item {
+    animation: none;
+  }
 }
 
 .version-history-item + .version-history-item {
@@ -39,6 +79,57 @@
 .version-history-item.current {
   background: rgba(255, 177, 0, 0.04);
   border-radius: 12px;
+}
+
+.version-history-item:not(.current) {
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.version-history-item:not(.current):hover {
+  background: var(--emerald-soft);
+}
+
+.version-history-item:not(.current):hover::before {
+  background: var(--emerald);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .version-history-item:not(.current) {
+    transition: none;
+  }
+}
+
+.version-history-item::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 22px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dimmer);
+  z-index: 1;
+}
+
+.version-history-item.current::before {
+  background: var(--amber);
+  box-shadow: 0 0 8px rgba(255, 177, 0, 0.6);
+}
+
+.version-history-item::after {
+  content: "";
+  position: absolute;
+  left: 17.5px;
+  top: 30px;
+  bottom: -14px;
+  width: 1px;
+  background: var(--border-soft);
+}
+
+.version-history-item:last-child::after {
+  display: none;
 }
 
 .version-history-item-header {
@@ -92,10 +183,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* ==========================================
-   EXPANDED PREVIEW
-========================================== */
 
 .version-history-preview {
   margin-top: 12px;
@@ -152,10 +239,6 @@
   color: var(--text-dim);
   line-height: 1.5;
 }
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
 
 @media (max-width: 640px) {
   .version-history-modal {

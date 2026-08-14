@@ -25,7 +25,6 @@ const promptVersionSchema = new mongoose.Schema({
   },
 });
 
-// Version numbers are 1, 2, 3... per prompt and must never collide.
 promptVersionSchema.index(
   { promptId: 1, versionNumber: 1 },
   { unique: true }

@@ -20,7 +20,7 @@ const WorkspaceMockup = () => {
   return (
     <div className="workspace-mockup">
       <div className="workspace-grid">
-        {/* Collections */}
+        {}
 
         <aside className="collections-panel">
           <div className="panel-title">Collections</div>
@@ -39,7 +39,7 @@ const WorkspaceMockup = () => {
           </div>
         </aside>
 
-        {/* Version Rail */}
+        {}
 
         <div className="version-rail">
           <div className="version-title">Versions</div>
@@ -61,7 +61,7 @@ const WorkspaceMockup = () => {
           </div>
         </div>
 
-        {/* Prompt Editor */}
+        {}
 
         <main className="editor-panel">
           <div className="editor-header">
@@ -110,7 +110,7 @@ const WorkspaceMockup = () => {
           </div>
         </main>
 
-        {/* Metrics Panel */}
+        {}
 
         <aside className="metrics-panel">
           <div className="panel-title">Live Metrics</div>

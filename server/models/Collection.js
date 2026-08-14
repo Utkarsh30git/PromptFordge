@@ -21,7 +21,6 @@ const collectionSchema = new mongoose.Schema(
   }
 );
 
-// A user shouldn't have two collections with the same name.
 collectionSchema.index({ userId: 1, name: 1 }, { unique: true });
 
 const Collection = mongoose.model("Collection", collectionSchema);

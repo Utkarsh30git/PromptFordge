@@ -20,8 +20,6 @@ const MAX_TEST_INPUT_LENGTH = 10_000;
 const MAX_VARIABLE_KEYS = 50;
 const MAX_VARIABLE_VALUE_LENGTH = 5_000;
 
-// Same sanitization as promptController.js's runPromptExecution —
-// duplicated locally to keep this controller self-contained.
 const sanitizeVariableValues = (raw) => {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
 
@@ -35,10 +33,6 @@ const sanitizeVariableValues = (raw) => {
   return values;
 };
 
-// Runs one side of the comparison and measures its OWN latency
-// independently, even though A and B execute concurrently via
-// Promise.all in the caller — each call gets a real, individual
-// start/end timestamp, not a shared/estimated one.
 const timedRun = async (args) => {
   const startedAt = Date.now();
   const result = await callOpenAI(args);
@@ -48,8 +42,8 @@ const timedRun = async (args) => {
 const buildSideResult = (version, resolvedContent, run, model) => ({
   versionId: version._id,
   versionNumber: version.versionNumber,
-  promptContent: version.content, // saved template, unchanged
-  resolvedPrompt: resolvedContent, // what was actually sent to OpenAI
+  promptContent: version.content,
+  resolvedPrompt: resolvedContent,
   response: run.response,
   latency: run.latencyMs,
   promptTokens: run.usage?.prompt_tokens ?? null,
@@ -58,10 +52,6 @@ const buildSideResult = (version, resolvedContent, run, model) => ({
   cost: calculateCost(model, run.usage),
 });
 
-// POST /api/prompts/compare
-// Runs two versions of the SAME prompt against the SAME test input,
-// then has a judge model score both responses. Read-only: never
-// touches the prompt, its content, or its versions.
 export const compareVersions = async (req, res) => {
   try {
     const {
@@ -98,10 +88,6 @@ export const compareVersions = async (req, res) => {
       });
     }
 
-    // Ownership: the prompt must belong to the caller. Both versions
-    // are then required to belong to THAT prompt — so a version from
-    // another user's prompt can never be referenced, even if its
-    // ObjectId is guessed.
     const prompt = await findOwnedPrompt(promptId, req.userId);
     if (!prompt) {
       return res.status(404).json({ message: "Prompt not found" });
@@ -120,9 +106,6 @@ export const compareVersions = async (req, res) => {
       return res.status(404).json({ message: "Version not found" });
     }
 
-    // Both versions may contain {{variables}} — the SAME submitted
-    // values are used to resolve both, so the comparison stays a fair
-    // apples-to-apples test of the two templates.
     const variableValues = sanitizeVariableValues(variables);
     const missing = [
       ...new Set([
@@ -179,10 +162,6 @@ export const compareVersions = async (req, res) => {
       });
     }
 
-    // Atomically reserve the credit before either execution starts —
-    // see utils/credits.js for why this (not a plain check-then-save)
-    // is what actually prevents concurrent requests from overspending.
-    // One Compare = one credit, refunded if EITHER stage below fails.
     const reservedUser = await reserveCredit(req.userId);
     if (!reservedUser) {
       return res.status(402).json({
@@ -230,9 +209,6 @@ export const compareVersions = async (req, res) => {
       });
     }
 
-    // Logging must never break the response the user is waiting on —
-    // if this fails for any reason, they still get their comparison
-    // result back; only Analytics history would be missing this one.
     try {
       const comparison = await Comparison.create({
         userId: req.userId,
@@ -247,9 +223,6 @@ export const compareVersions = async (req, res) => {
         reason: judged.reason || "",
       });
 
-      // Compare performs two real, billed executions — each is logged
-      // as its own PromptRun (type: "compare") so Analytics totals
-      // (tokens/cost/model usage) don't undercount comparison spend.
       await PromptRun.insertMany([
         {
           userId: req.userId,

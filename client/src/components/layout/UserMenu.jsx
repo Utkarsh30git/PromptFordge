@@ -5,11 +5,6 @@ import useAuthStore from "../../store/authStore";
 import useClickOutside from "../../hooks/useClickOutside";
 import UserAvatar from "../ui/UserAvatar";
 
-/**
- * Authenticated account menu: avatar trigger + dropdown.
- * Shared between the marketing Navbar (shown when a logged-in
- * user visits "/") and the authenticated AppNavbar.
- */
 const UserMenu = ({ user }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);

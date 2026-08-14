@@ -1,0 +1,142 @@
+
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.energy-surface {
+  position: relative;
+  border-radius: var(--radius);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.energy-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    transparent 0%,
+    transparent 78%,
+    rgba(255, 177, 0, 0.9) 86%,
+    rgba(52, 211, 153, 0.9) 92%,
+    transparent 100%
+  );
+
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.energy-surface:hover::before,
+.energy-surface:focus-within::before {
+  opacity: 1;
+  animation: energy-rotate 2.6s linear infinite;
+}
+
+.energy-surface:hover,
+.energy-surface:focus-within {
+  transform: translateY(-1px);
+}
+
+@keyframes energy-rotate {
+  to {
+    --angle: 360deg;
+  }
+}
+
+.energy-surface--amber-active {
+  border: 1px solid rgba(255, 177, 0, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 177, 0, 0.08),
+    0 0 22px rgba(255, 177, 0, 0.08);
+}
+
+.energy-surface--running::before {
+  opacity: 1;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    transparent 0%,
+    transparent 72%,
+    rgba(52, 211, 153, 0.95) 86%,
+    transparent 100%
+  );
+  animation: energy-rotate 2.2s linear infinite;
+}
+
+.energy-surface--success::after,
+.energy-surface--error::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.5), 0 0 26px rgba(52, 211, 153, 0.18);
+  animation: energy-pulse 0.9s ease-out both;
+}
+
+.energy-surface--error::after {
+  box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.55), 0 0 26px rgba(248, 113, 113, 0.2);
+}
+
+@keyframes energy-pulse {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes energy-card-glow {
+  0% {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  30% {
+    box-shadow: 0 0 0 1px var(--glow-color, rgba(52, 211, 153, 0.5)),
+      0 0 16px var(--glow-color, rgba(52, 211, 153, 0.35));
+  }
+  100% {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+}
+
+.energy-pulse-once {
+  animation: energy-card-glow 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energy-surface,
+  .energy-surface::before,
+  .energy-surface--running::before,
+  .energy-surface--success::after,
+  .energy-surface--error::after,
+  .energy-pulse-once {
+    animation: none !important;
+    transition: opacity 0.15s ease !important;
+  }
+
+  .energy-surface:hover,
+  .energy-surface:focus-within {
+    transform: none;
+  }
+
+  .energy-surface:hover::before,
+  .energy-surface:focus-within::before {
+    opacity: 1;
+  }
+}
+

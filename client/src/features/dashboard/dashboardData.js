@@ -1,7 +1,4 @@
-// Mock data for the Dashboard overview. PromptForge doesn't yet
-// have a prompts/runs API, so this stands in until that backend
-// exists — structured the way the real response is expected to
-// look so wiring up the API later is a drop-in swap.
+
 
 export const OVERVIEW_STATS = [
   { label: "Total Runs", value: "120" },

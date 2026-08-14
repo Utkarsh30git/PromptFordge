@@ -46,7 +46,7 @@ const Analytics = () => {
 
   useEffect(() => {
     fetchAnalytics(range);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const overview = data?.overview;
@@ -54,7 +54,7 @@ const Analytics = () => {
     overview && (overview.totalRuns > 0 || overview.totalCost > 0 || data.comparisonSummary);
 
   return (
-    <div className="app-page">
+    <div className="app-page page-enter">
       <Container>
         <div className="analytics-page-header">
           <div className="section-heading app-page-heading">
@@ -94,7 +94,7 @@ const Analytics = () => {
 
         {data && hasAnyData && (
           <>
-            {/* Overview */}
+            {}
             <div className="analytics-overview-grid">
               <div className="analytics-card">
                 <div className="analytics-label">Total Runs</div>
@@ -126,7 +126,7 @@ const Analytics = () => {
               </div>
             </div>
 
-            {/* Runs over time */}
+            {}
             <section className="analytics-section-block">
               <p className="dashboard-section-label mono">Runs Over Time</p>
               <TrendChart
@@ -136,7 +136,7 @@ const Analytics = () => {
               />
             </section>
 
-            {/* Cost + Tokens over time */}
+            {}
             <div className="analytics-columns">
               <section className="analytics-section-block">
                 <p className="dashboard-section-label mono">Cost Over Time</p>
@@ -157,7 +157,7 @@ const Analytics = () => {
               </section>
             </div>
 
-            {/* Top prompts */}
+            {}
             <section className="analytics-section-block">
               <p className="dashboard-section-label mono">Top Prompts</p>
 
@@ -184,7 +184,7 @@ const Analytics = () => {
               )}
             </section>
 
-            {/* Model usage + comparison summary */}
+            {}
             <div className="analytics-columns">
               <section className="analytics-section-block">
                 <p className="dashboard-section-label mono">Model Usage</p>
@@ -237,7 +237,7 @@ const Analytics = () => {
               </section>
             </div>
 
-            {/* Recent activity */}
+            {}
             <section className="analytics-section-block">
               <p className="dashboard-section-label mono">Recent Activity</p>
 

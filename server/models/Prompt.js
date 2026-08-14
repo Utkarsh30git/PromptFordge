@@ -10,9 +10,6 @@ const promptSchema = new mongoose.Schema(
       default: "untitled.prompt",
     },
 
-    // Mirrors the content of the most recently saved version, so the
-    // sidebar/list views never need to join against PromptVersion just
-    // to show what a prompt currently contains.
     content: {
       type: String,
       maxlength: 20_000,
@@ -25,8 +22,6 @@ const promptSchema = new mongoose.Schema(
       default: null,
     },
 
-    // Lets a user star a prompt for quick access from the Library's
-    // "Favorites" filter, without opening the Workspace.
     isFavorite: {
       type: Boolean,
       default: false,
@@ -40,7 +35,7 @@ const promptSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // createdAt, updatedAt
+    timestamps: true,
   }
 );
 

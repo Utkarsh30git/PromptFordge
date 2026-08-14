@@ -1,7 +1,4 @@
-// Server-side mirror of src/utils/promptVariables.js. This copy is
-// the AUTHORITATIVE one — the backend never trusts a resolved prompt
-// sent by the frontend, so it re-detects and re-resolves variables
-// itself from the saved template + the submitted values.
+
 
 const VARIABLE_PATTERN = /{{\s*([a-zA-Z0-9_]+)\s*}}/g;
 

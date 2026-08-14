@@ -35,7 +35,6 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
 
-  // Profile editing — local until "Save Changes" is clicked.
   const [nameDraft, setNameDraft] = useState(user?.name || "");
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState("");
@@ -85,7 +84,7 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <div className="app-page">
+      <div className="app-page page-enter">
         <Container>
           <div className="section-heading app-page-heading">
             <p className="section-kicker mono">SETTINGS</p>
@@ -101,7 +100,7 @@ const Settings = () => {
 
   if (!user) {
     return (
-      <div className="app-page">
+      <div className="app-page page-enter">
         <Container>
           <div className="section-heading app-page-heading">
             <p className="section-kicker mono">SETTINGS</p>
@@ -119,7 +118,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="app-page">
+    <div className="app-page page-enter">
       <Container>
         <div className="section-heading app-page-heading">
           <p className="section-kicker mono">SETTINGS</p>

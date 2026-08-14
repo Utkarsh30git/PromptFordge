@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Container from "../components/ui/Container";
 import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
+import SelectDropdown from "../components/ui/SelectDropdown";
 import useCompareStore from "../store/compareStore";
 
 const formatLatency = (ms) => {
@@ -86,11 +87,18 @@ const Compare = () => {
 
   useEffect(() => {
     fetchPrompts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const versionsOptionsFor = (excludeId) =>
     versions.filter((v) => v._id !== excludeId);
+
+  const promptOptions = prompts.map((p) => ({ id: p._id, label: p.title }));
+  const versionOptionsFor = (excludeId) =>
+    versionsOptionsFor(excludeId).map((v) => ({
+      id: v._id,
+      label: `v${v.versionNumber}`,
+    }));
 
   const hasEnoughVersions = versions.length >= 2;
   const sameVersionSelected =
@@ -109,14 +117,14 @@ const Compare = () => {
     try {
       await runCompare();
     } catch {
-      // compareError is already set on the store and rendered below
+
     }
   };
 
-  const winner = result?.judge?.winner; // "A" | "B" | "tie"
+  const winner = result?.judge?.winner;
 
   return (
-    <div className="app-page">
+    <div className="app-page page-enter">
       <Container>
         <div className="section-heading app-page-heading">
           <p className="section-kicker mono">COMPARE</p>
@@ -141,21 +149,16 @@ const Compare = () => {
           <div className="compare-setup">
             <div className="compare-field">
               <label className="compare-field-label">Prompt</label>
-              <select
-                className="compare-select"
-                value={selectedPromptId || ""}
-                onChange={(e) => selectPrompt(e.target.value || null)}
+              <SelectDropdown
+                options={promptOptions}
+                value={selectedPromptId}
+                onChange={(id) => selectPrompt(id || null)}
+                placeholder={
+                  promptsLoading ? "Loading prompts…" : "Select a prompt"
+                }
                 disabled={promptsLoading}
-              >
-                <option value="">
-                  {promptsLoading ? "Loading prompts…" : "Select a prompt"}
-                </option>
-                {prompts.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.title}
-                  </option>
-                ))}
-              </select>
+                fullWidth
+              />
             </div>
 
             {selectedPromptId && !versionsLoading && !hasEnoughVersions && (
@@ -180,18 +183,14 @@ const Compare = () => {
                 <div className="compare-columns">
                   <div className="optimize-column">
                     <div className="optimize-column-label">Prompt A</div>
-                    <select
-                      className="compare-select compare-select-small"
-                      value={versionAId || ""}
-                      onChange={(e) => setVersionA(e.target.value || null)}
-                    >
-                      <option value="">Select version</option>
-                      {versionsOptionsFor(versionBId).map((v) => (
-                        <option key={v._id} value={v._id}>
-                          v{v.versionNumber}
-                        </option>
-                      ))}
-                    </select>
+                    <SelectDropdown
+                      options={versionOptionsFor(versionBId)}
+                      value={versionAId}
+                      onChange={(id) => setVersionA(id || null)}
+                      caption="Version"
+                      placeholder="Select version"
+                      fullWidth
+                    />
 
                     {versionAId && (
                       <pre className="optimize-column-content">
@@ -204,18 +203,14 @@ const Compare = () => {
                     <div className="optimize-column-label optimize-column-label-highlight">
                       Prompt B
                     </div>
-                    <select
-                      className="compare-select compare-select-small"
-                      value={versionBId || ""}
-                      onChange={(e) => setVersionB(e.target.value || null)}
-                    >
-                      <option value="">Select version</option>
-                      {versionsOptionsFor(versionAId).map((v) => (
-                        <option key={v._id} value={v._id}>
-                          v{v.versionNumber}
-                        </option>
-                      ))}
-                    </select>
+                    <SelectDropdown
+                      options={versionOptionsFor(versionAId)}
+                      value={versionBId}
+                      onChange={(id) => setVersionB(id || null)}
+                      caption="Version"
+                      placeholder="Select version"
+                      fullWidth
+                    />
 
                     {versionBId && (
                       <pre className="optimize-column-content optimize-column-content-highlight">

@@ -1,6 +1,4 @@
-/* ==========================================
-   COMPARE SECTION
-========================================== */
+
 
 .compare-section {
   padding: clamp(70px, 50px + 10vw, 180px) 0;
@@ -12,10 +10,6 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 28px;
 }
-
-/* ==========================================
-   COMPARE CARD
-========================================== */
 
 .compare-card {
   position: relative;
@@ -95,10 +89,6 @@
 .compare-card.winner .compare-stats div:last-child strong {
   color: var(--amber);
 }
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
 
 @media (max-width: 640px) {
   .compare-grid {

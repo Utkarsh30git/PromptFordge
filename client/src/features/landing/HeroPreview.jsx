@@ -3,7 +3,7 @@ import Typewriter from "../../components/animations/Typewriter";
 const HeroPreview = () => {
   return (
     <div className="hero-preview">
-      {/* Window Header */}
+      {}
       <div className="preview-header">
         <div className="preview-controls">
           <span className="dot red"></span>
@@ -16,10 +16,10 @@ const HeroPreview = () => {
         <div className="preview-file mono">interview-question.prompt • v4</div>
       </div>
 
-      {/* Prompt Area */}
+      {}
 
       <div className="preview-body">
-        {/* Prompt */}
+        {}
 
         <div className="prompt-section">
           <p className="section-label">PROMPT</p>
@@ -35,7 +35,7 @@ const HeroPreview = () => {
 
         <div className="preview-divider"></div>
 
-        {/* AI Response */}
+        {}
 
         <div className="response-section">
           <p className="response-text">

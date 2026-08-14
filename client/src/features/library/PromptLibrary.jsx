@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Container from "../../components/ui/Container";
 import Button from "../../components/ui/Button";
 import PromptCard from "./PromptCard";
+import SortDropdown from "./SortDropdown";
 import usePromptLibraryStore from "../../store/promptLibraryStore";
 
 const fadeUp = {
@@ -47,6 +48,7 @@ const PromptLibrary = () => {
     toggleFavorite,
     moveToCollection,
     createPrompt,
+    deletePrompt,
   } = usePromptLibraryStore();
 
   const [searchInput, setSearchInput] = useState(search);
@@ -56,7 +58,7 @@ const PromptLibrary = () => {
   useEffect(() => {
     fetchCollections();
     fetchPrompts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const handleSearchChange = (value) => {
@@ -74,7 +76,7 @@ const PromptLibrary = () => {
       const prompt = await createPrompt(null);
       navigate(`/prompts/${prompt._id}`);
     } catch {
-      // best-effort — a toast/error surface can be added later if needed
+
     } finally {
       setCreating(false);
     }
@@ -141,17 +143,7 @@ const PromptLibrary = () => {
             ))}
           </div>
 
-          <select
-            className="library-sort"
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.id} value={opt.id}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+          <SortDropdown options={SORT_OPTIONS} value={sort} onChange={setSort} />
         </motion.div>
 
         <motion.div
@@ -206,6 +198,7 @@ const PromptLibrary = () => {
                   collections={collections}
                   onToggleFavorite={toggleFavorite}
                   onMove={moveToCollection}
+                  onDelete={deletePrompt}
                 />
               ))}
             </div>

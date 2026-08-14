@@ -9,7 +9,6 @@ import {
 
 const router = express.Router();
 
-// Every collection route requires an authenticated user.
 router.use(authMiddleware);
 
 router.post("/", createCollection);

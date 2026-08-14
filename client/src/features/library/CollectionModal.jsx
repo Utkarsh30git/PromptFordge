@@ -3,9 +3,6 @@ import Button from "../../components/ui/Button";
 
 const MAX_LENGTH = 100;
 
-// Shared modal for both "New Collection" and "Rename Collection" —
-// same fields/validation, just a different title/submit label and
-// initial value depending on `mode`.
 const CollectionModal = ({ mode = "create", initialName = "", onSubmit, onCancel }) => {
   const [name, setName] = useState(initialName);
   const [error, setError] = useState("");

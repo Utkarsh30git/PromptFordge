@@ -24,9 +24,6 @@ const MAX_PROMPT_CONTENT_LENGTH = 20_000;
 const MAX_VARIABLE_KEYS = 50;
 const MAX_VARIABLE_VALUE_LENGTH = 5_000;
 
-// Shared by run/optimize/analyze error handling — the three OpenAI-
-// backed actions in this controller all map service error codes to
-// the same HTTP status/message pairs.
 const mapOpenAIErrorStatus = (err) => {
   if (err.code === "TIMEOUT") return 504;
   if (err.code === "MISSING_API_KEY") return 500;
@@ -39,14 +36,6 @@ const mapOpenAIErrorMessage = (err) => {
   return "The AI provider failed to respond. Please try again.";
 };
 
-// Coerces the client-submitted `variables` object into a plain
-// { name: string } map. Anything that isn't a plain object, or whose
-// values aren't strings/numbers, is dropped rather than trusted —
-// this only ever feeds a string replace, but we still don't want
-// stray objects/arrays flowing into resolution or logging. Also
-// bounds how many keys and how long each value can be, so a
-// malicious/oversized payload can't bloat a request or (since these
-// values flow into the OpenAI call) inflate token usage/cost.
 const sanitizeVariableValues = (raw) => {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
 
@@ -60,10 +49,6 @@ const sanitizeVariableValues = (raw) => {
   return values;
 };
 
-// Every "run" and "optimize" execution against a prompt runs its
-// SAVED content, which always corresponds to the latest PromptVersion
-// at that moment. Looked up once, here, so both execution paths log
-// a consistent versionId without duplicating the query.
 const getLatestVersionId = async (promptId) => {
   const latest = await PromptVersion.findOne({ promptId }).sort({
     versionNumber: -1,
@@ -71,9 +56,6 @@ const getLatestVersionId = async (promptId) => {
   return latest?._id || null;
 };
 
-// Logging a completed execution must never break the response the
-// user is waiting on — if Analytics persistence fails for any reason,
-// the AI result they paid a credit for still comes back normally.
 const logPromptRun = async (entry) => {
   try {
     await PromptRun.create(entry);
@@ -82,9 +64,6 @@ const logPromptRun = async (entry) => {
   }
 };
 
-// Confirms `collectionId` (if provided) is a real ObjectId that
-// belongs to the requesting user. Returns an error response object
-// to send back, or null if everything checks out.
 const validateOwnedCollectionId = async (collectionId, userId, res) => {
   if (!collectionId) return null;
 
@@ -106,7 +85,6 @@ const validateOwnedCollectionId = async (collectionId, userId, res) => {
   return null;
 };
 
-// POST /api/prompts
 export const createPrompt = async (req, res) => {
   try {
     const { title, collection: collectionId } = req.body;
@@ -140,9 +118,6 @@ export const createPrompt = async (req, res) => {
   }
 };
 
-// Recognized values for ?sort= on GET /api/prompts. Keeping this as an
-// explicit map (rather than trusting an arbitrary field name from the
-// query string) avoids exposing sort-by-anything on a Mongo query.
 const SORT_OPTIONS = {
   newest: { updatedAt: -1 },
   oldest: { updatedAt: 1 },
@@ -150,16 +125,10 @@ const SORT_OPTIONS = {
   name_desc: { title: -1 },
 };
 
-// "Recent" filter window for the Library's Recent tab — prompts
-// touched (created or saved) in the last 14 days.
 const RECENT_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
-// Escapes a string for safe use inside a RegExp — search is
-// user-controlled free text, so it must never be interpreted as a
-// regex pattern itself.
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// GET /api/prompts?collection=<id>&search=<q>&filter=all|favorites|recent&sort=newest|oldest|name_asc|name_desc
 export const getPrompts = async (req, res) => {
   try {
     const { collection: collectionId, search, filter, sort } = req.query;
@@ -173,9 +142,7 @@ export const getPrompts = async (req, res) => {
     }
 
     if (search && typeof search === "string" && search.trim()) {
-      // Client-side filtering also works fine at small scale, but
-      // doing it server-side here means it's already in place if/when
-      // the dataset grows past what's comfortable to ship to the client.
+
       const pattern = new RegExp(escapeRegex(search.trim()), "i");
       query.$or = [{ title: pattern }, { content: pattern }];
     }
@@ -190,8 +157,6 @@ export const getPrompts = async (req, res) => {
 
     const prompts = await Prompt.find(query).sort(sortSpec);
 
-    // The Library card shows which version a prompt is on. Fetched in
-    // one grouped query rather than N+1 per-prompt lookups.
     const promptIds = prompts.map((p) => p._id);
     const latestVersions = await PromptVersion.aggregate([
       { $match: { promptId: { $in: promptIds } } },
@@ -218,10 +183,6 @@ export const getPrompts = async (req, res) => {
   }
 };
 
-// PUT /api/prompts/:id/favorite
-// Dedicated, lightweight endpoint for the Library's star toggle so a
-// favorite/unfavorite click never needs to round-trip full prompt
-// metadata (title/collection) the way PUT /:id does.
 export const setFavorite = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -251,7 +212,6 @@ export const setFavorite = async (req, res) => {
   }
 };
 
-// GET /api/prompts/:id
 export const getPromptById = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -270,9 +230,6 @@ export const getPromptById = async (req, res) => {
   }
 };
 
-// PUT /api/prompts/:id
-// Metadata-only update (title / which collection it lives in).
-// Does NOT create a new version — use /save for content changes.
 export const updatePrompt = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -315,7 +272,6 @@ export const updatePrompt = async (req, res) => {
   }
 };
 
-// DELETE /api/prompts/:id
 export const deletePrompt = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -339,10 +295,6 @@ export const deletePrompt = async (req, res) => {
   }
 };
 
-// POST /api/prompts/:id/save
-// The core "Save Version" action: persists the editor's current
-// content as a brand new, immutable version, and updates the
-// prompt's own title/content/updatedAt to match.
 export const savePromptVersion = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -401,7 +353,6 @@ export const savePromptVersion = async (req, res) => {
   }
 };
 
-// GET /api/prompts/:id/versions
 export const getPromptVersions = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -424,10 +375,6 @@ export const getPromptVersions = async (req, res) => {
   }
 };
 
-// POST /api/prompts/:id/run
-// Executes the prompt's currently SAVED content against OpenAI.
-// Content is read from the stored Prompt document, never trusted
-// from the request body — the client only chooses model/temperature.
 export const runPromptExecution = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -446,9 +393,6 @@ export const runPromptExecution = async (req, res) => {
 
     let { model, temperature, variables } = req.body || {};
 
-    // The template (with {{placeholders}} intact) is what's stored —
-    // it's never overwritten. Variable values only ever produce a
-    // resolved string used for THIS execution.
     const variableValues = sanitizeVariableValues(variables);
     const missing = findMissingVariables(content, variableValues);
     if (missing.length > 0) {
@@ -486,9 +430,6 @@ export const runPromptExecution = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Fast, cheap pre-check — avoids a wasted OpenAI call for a user
-    // who's obviously out of credits. This alone can't prevent a
-    // race between two concurrent requests, though — see reserveCredit.
     if (user.credits <= 0) {
       return res.status(402).json({
         message: "You're out of credits. Upgrade your plan to keep running prompts.",
@@ -501,10 +442,6 @@ export const runPromptExecution = async (req, res) => {
       });
     }
 
-    // Atomically reserve the credit BEFORE calling OpenAI. This is
-    // what actually closes the concurrent-request race the pre-check
-    // above can't: if two requests land at once with 1 credit left,
-    // only one of these atomic decrements can succeed.
     const reservedUser = await reserveCredit(req.userId);
     if (!reservedUser) {
       return res.status(402).json({
@@ -519,7 +456,7 @@ export const runPromptExecution = async (req, res) => {
       result = await callOpenAI({ prompt: resolvedContent, model, temperature });
     } catch (err) {
       console.error("OpenAI run error:", err.message);
-      // The reservation didn't pay off — give the credit back.
+
       await refundCredit(req.userId);
 
       if (err.code === "TIMEOUT") {
@@ -541,9 +478,6 @@ export const runPromptExecution = async (req, res) => {
 
     const latencyMs = Date.now() - startedAt;
     const cost = calculateCost(model, result.usage);
-
-    // Credit was already atomically deducted by reserveCredit above —
-    // reservedUser.credits is the correct post-deduction balance.
 
     await logPromptRun({
       userId: req.userId,
@@ -581,16 +515,6 @@ export const runPromptExecution = async (req, res) => {
   }
 };
 
-// POST /api/prompts/:id/optimize
-// Rewrites the prompt's currently SAVED content into an improved
-// prompt via OpenAI. This is a distinct operation from /run: it
-// analyzes and improves the PROMPT ITSELF, it does not execute it.
-// The rewritten prompt is returned for review only — it is NOT
-// applied to the prompt/version here. The editor/version only change
-// if the client later calls /save (via "Use Optimized Prompt" ->
-// Save Version). A PromptRun log entry (type: "optimize") IS written
-// for Analytics purposes, since a real, billed OpenAI call happened —
-// but that's a history record, not a change to the prompt itself.
 export const optimizePromptExecution = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -626,9 +550,6 @@ export const optimizePromptExecution = async (req, res) => {
       });
     }
 
-    // Atomically reserve the credit before calling OpenAI — see
-    // utils/credits.js for why this (not a plain check-then-save) is
-    // what actually prevents concurrent requests from overspending.
     const reservedUser = await reserveCredit(req.userId);
     if (!reservedUser) {
       return res.status(402).json({
@@ -665,10 +586,6 @@ export const optimizePromptExecution = async (req, res) => {
     const latencyMs = Date.now() - startedAt;
     const cost = calculateCost(model, result.usage);
 
-    // The optimizer is instructed to preserve {{variables}} verbatim,
-    // but model output isn't guaranteed — this is a non-blocking
-    // sanity check so a regression shows up in server logs instead of
-    // silently shipping a template that lost its placeholders.
     const originalVars = extractVariables(content);
     const optimizedVars = extractVariables(result.optimizedPrompt);
     const droppedVars = originalVars.filter((v) => !optimizedVars.includes(v));
@@ -684,7 +601,7 @@ export const optimizePromptExecution = async (req, res) => {
       versionId: await getLatestVersionId(prompt._id),
       type: "optimize",
       model: result.model,
-      temperature: null, // fixed internal value, not user-facing
+      temperature: null,
       latencyMs,
       promptTokens: result.usage?.prompt_tokens ?? null,
       completionTokens: result.usage?.completion_tokens ?? null,
@@ -710,18 +627,6 @@ export const optimizePromptExecution = async (req, res) => {
   }
 };
 
-// POST /api/prompts/:id/analyze
-// Analyzes the PROMPT ITSELF (clarity, specificity, context,
-// structure, output definition) — a distinct concept from Run
-// (executes the prompt) and Compare's judge (scores a RESPONSE).
-// Purely advisory: never touches the saved prompt/version, and is
-// deliberately NOT logged as a PromptRun, since it isn't a real
-// "execution" — Analytics/recent-activity should not count it as one.
-//
-// Respects whichever version the user is currently viewing: an
-// optional versionId in the body is looked up (and ownership-checked
-// via promptId) the same way Compare does; omitting it falls back to
-// the latest saved version, matching Run/Optimize's default.
 export const analyzePromptExecution = async (req, res) => {
   try {
     const prompt = await findOwnedPrompt(req.params.id, req.userId);
@@ -784,9 +689,6 @@ export const analyzePromptExecution = async (req, res) => {
       });
     }
 
-    // Atomically reserve the credit before calling OpenAI — see
-    // utils/credits.js for why this (not a plain check-then-save) is
-    // what actually prevents concurrent requests from overspending.
     const reservedUser = await reserveCredit(req.userId);
     if (!reservedUser) {
       return res.status(402).json({
@@ -812,9 +714,6 @@ export const analyzePromptExecution = async (req, res) => {
       });
     }
 
-    // The model supplies dimension scores only — the overall score is
-    // always computed here, deterministically, from a single weights
-    // config, never trusted from (or invented to match) the model.
     const overallScore = calculateOverallScore(result.scores);
 
     return res.status(200).json({

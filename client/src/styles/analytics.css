@@ -1,6 +1,4 @@
-/* ==========================================
-   ANALYTICS SECTION
-========================================== */
+
 
 .analytics-section {
   padding: var(--space-xl) 0 var(--space-xxl);
@@ -63,10 +61,6 @@
   color: var(--red);
 }
 
-/* ==========================================
-   RESPONSIVE
-========================================== */
-
 @media (max-width: 1024px) {
   .analytics-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -78,12 +72,6 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* ==========================================
-   REAL ANALYTICS PAGE
-   Everything below is for the actual /analytics app page (distinct
-   from the marketing section above, which stays untouched).
-========================================== */
 
 .analytics-page-header {
   display: flex;
@@ -154,10 +142,6 @@
   margin-bottom: 0;
 }
 
-/* ==========================================
-   TREND CHART
-========================================== */
-
 .trend-chart {
   border-radius: 16px;
   border: 1px solid var(--border-soft);
@@ -192,10 +176,6 @@
   font-size: 13.5px;
 }
 
-/* ==========================================
-   TOP PROMPTS
-========================================== */
-
 .top-prompt-quality {
   font-family: "JetBrains Mono", monospace;
   font-size: 13px;
@@ -203,10 +183,6 @@
   font-weight: 600;
   flex-shrink: 0;
 }
-
-/* ==========================================
-   MODEL USAGE
-========================================== */
 
 .model-usage-list {
   display: flex;
@@ -243,10 +219,6 @@
   background: linear-gradient(90deg, var(--amber), #ffd166);
 }
 
-/* ==========================================
-   COMPARISON SUMMARY
-========================================== */
-
 .comparison-summary-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -276,10 +248,6 @@
   color: var(--teal);
   font-family: "JetBrains Mono", monospace;
 }
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
 
 @media (max-width: 1024px) {
   .analytics-overview-grid {

@@ -32,6 +32,7 @@ const CollectionDetail = () => {
     toggleFavorite,
     moveToCollection,
     createPrompt,
+    deletePrompt,
   } = usePromptLibraryStore();
 
   const [searchInput, setSearchInput] = useState("");
@@ -44,10 +45,8 @@ const CollectionDetail = () => {
     setActiveCollectionId(id);
     setSearchInput("");
 
-    // Leaving the collection view shouldn't leave the library's list
-    // scoped to a collection that's no longer being viewed.
     return () => setActiveCollectionId(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [id]);
 
   const handleSearchChange = (value) => {
@@ -63,7 +62,7 @@ const CollectionDetail = () => {
       const prompt = await createPrompt(id);
       navigate(`/prompts/${prompt._id}`);
     } catch {
-      // best-effort
+
     } finally {
       setCreating(false);
     }
@@ -164,6 +163,7 @@ const CollectionDetail = () => {
                 collections={collections}
                 onToggleFavorite={toggleFavorite}
                 onMove={moveToCollection}
+                onDelete={deletePrompt}
               />
             ))}
           </div>

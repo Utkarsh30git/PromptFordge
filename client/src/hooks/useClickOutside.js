@@ -1,10 +1,5 @@
 import { useEffect } from "react";
 
-/**
- * Calls `handler` whenever a pointer event occurs outside of `ref`.
- * Used to close dropdowns/menus (e.g. the user account menu) when the
- * user clicks anywhere else on the page.
- */
 const useClickOutside = (ref, handler, active = true) => {
   useEffect(() => {
     if (!active) return;

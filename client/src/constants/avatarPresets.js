@@ -1,12 +1,5 @@
-// Visual design for each preset avatar id. Original, abstract
-// gradient swatches only — no photos, no characters, nothing
-// copyrighted. Keep the id list in sync with the backend's
-// server/config/avatarPresets.js (the backend only validates ids;
-// this file is the only place that decides what each one looks like).
-//
-// Each preset renders as a gradient circle with the user's initials
-// on top (like GitHub/Slack's colored-initial avatars) — no image
-// assets required, so there's nothing to upload or host.
+
+
 export const AVATAR_PRESETS = [
   { id: "preset-01", gradient: "linear-gradient(135deg, #FFB100, #FF7A1A)" },
   { id: "preset-02", gradient: "linear-gradient(135deg, #2DD4BF, #0EA5A0)" },
@@ -29,7 +22,4 @@ export const getAvatarPreset = (id) => PRESET_BY_ID.get(id) || null;
 export const isPresetAvatarId = (avatar) =>
   typeof avatar === "string" && avatar.startsWith("preset-");
 
-// Mirrors the backend's config/avatarPresets.js sentinel — the value
-// sent to PATCH /api/auth/avatar to mean "switch back to my Google
-// profile picture" rather than a specific preset id.
 export const USE_GOOGLE_AVATAR = "google";

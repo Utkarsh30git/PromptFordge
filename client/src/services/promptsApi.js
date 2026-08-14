@@ -1,7 +1,7 @@
 import api from "./api";
 
 export const listPrompts = async (params = {}) => {
-  // Back-compat: existing callers pass a bare collectionId string.
+
   const query =
     typeof params === "string" || params === undefined
       ? params

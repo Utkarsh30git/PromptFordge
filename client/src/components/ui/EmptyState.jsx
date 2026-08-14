@@ -1,12 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 
-/**
- * Premium "coming soon" placeholder used by pages that only have
- * their navigation/structure established so far (Compare, Analytics,
- * Settings) — keeps them feeling like part of the product rather
- * than a broken or missing page.
- */
 const EmptyState = ({
   title,
   description,

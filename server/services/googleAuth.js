@@ -19,10 +19,7 @@ export const verifyGoogleToken = async (idToken) => {
 
     const payload = ticket.getPayload();
 
-    // Confirms verification succeeded without logging the user's
-    // name/email — those are PII and don't belong in server logs for
-    // every login. `sub` is Google's opaque per-account id, not an
-    // identifying credential.
+
     console.log("Google token verified successfully:", { sub: payload?.sub });
 
     if (!payload) {
