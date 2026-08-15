@@ -30,13 +30,23 @@ app.use(
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
+const allowedOrigins = [
+  "http://localhost:5173",
+   CLIENT_URL,
+];
+
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
-
 app.use(express.json());
 app.use(cookieParser());
 
