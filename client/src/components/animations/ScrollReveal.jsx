@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
 
-// Same easing/feel as the Hero's on-load fadeUp — reused here so
-// sections revealed on scroll match the motion language already
-// established at the top of the page.
+
 const fadeUp = {
   hidden: {
     opacity: 0,
@@ -20,10 +18,7 @@ const fadeUp = {
   },
 };
 
-/**
- * Wraps its children so they fade/slide/blur into place the first time
- * they scroll into view, instead of being visible immediately on load.
- */
+
 const ScrollReveal = ({ children, className = "" }) => {
   return (
     <motion.div

@@ -1,7 +1,9 @@
 import Container from "../../components/ui/Container";
 import Button from "../../components/ui/Button";
+import { useNavigate } from "react-router-dom";
 
 const CTASection = () => {
+   const navigate = useNavigate()
   return (
     <section className="cta-section" id="get-started">
       <Container>
@@ -16,7 +18,7 @@ const CTASection = () => {
         </p>
 
         <div className="cta-actions">
-          <Button variant="amber" >Get Started — it's free</Button>
+          <Button variant="amber"onClick={() => navigate("/login")} >Get Started — it's free</Button>
         </div>
       </Container>
     </section>

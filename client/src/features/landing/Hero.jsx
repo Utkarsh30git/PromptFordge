@@ -4,6 +4,7 @@ import Container from "../../components/ui/Container";
 import Button from "../../components/ui/Button";
 import HeroPreview from "./HeroPreview";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const fadeUp = {
   hidden: {
@@ -24,6 +25,7 @@ const fadeUp = {
 };
 
 const Hero = () => {
+  const navigate = useNavigate();
   return (
     <section className="hero">
       <GridBackground />
@@ -73,9 +75,21 @@ const Hero = () => {
             animate="visible"
             custom={1.1}
           >
-            <Button variant="amber">Run Prompt →</Button>
+            <Button variant="amber" onClick={() => navigate("/login")}>
+              Run Prompt →
+            </Button>
 
-            <Button variant="ghost">Github</Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                window.open(
+                  "https://github.com/Utkarsh30git/PromptFordge",
+                  "_blank",
+                );
+              }}
+            >
+              Github
+            </Button>
           </motion.div>
           <motion.div
             variants={fadeUp}
