@@ -3,6 +3,7 @@ import { NAV_LINKS } from "../../constants/navigation";
 import Button from "../ui/Button";
 import UserMenu from "./UserMenu";
 import useAuthStore from "../../store/authStore";
+import logo from "../../assets/logo.png"
 
 const Navbar = () => {
   const user = useAuthStore((state) => state.user);
@@ -14,10 +15,13 @@ const Navbar = () => {
 
         {}
         <div className="logo">
-          <span className="logo-dot"></span>
-          PromptForge
+          <img
+            src={logo}
+            alt="PromptForge Logo"
+            className="logo-image"
+          />
+          <span className="font-medium">PromptForge</span>
         </div>
-
         {}
         <div className="nav-links">
           {NAV_LINKS.map((link) => (

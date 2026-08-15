@@ -1,6 +1,7 @@
 import { NavLink, Link } from "react-router-dom";
 import UserMenu from "./UserMenu";
 import useAuthStore from "../../store/authStore";
+import logo from "../../assets/logo.png";
 
 const APP_LINKS = [
   { name: "Dashboard", to: "/dashboard" },
@@ -16,10 +17,8 @@ const AppNavbar = () => {
   return (
     <nav className="app-nav">
       <div className="app-nav-inner">
-
         <Link to="/dashboard" className="logo">
-          <span className="logo-dot"></span>
-          PromptForge
+          <img src={logo} alt="PromptForge" className="logo-image" />
         </Link>
 
         <div className="app-nav-links">
@@ -39,7 +38,6 @@ const AppNavbar = () => {
         <div className="app-nav-actions">
           {user && <UserMenu user={user} />}
         </div>
-
       </div>
     </nav>
   );

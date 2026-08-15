@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import logo from "../assets/logo.png";
 import GridBackground from "../components/layout/GridBackground";
 import Spotlight from "../components/layout/Spotlight";
 import GoogleLogin from "../components/auth/GoogleLogin";
@@ -44,12 +44,7 @@ const Login = () => {
       <GridBackground />
       <Spotlight />
 
-      <div className="login-topbar">
-        <Link to="/" className="login-logo">
-          <span className="logo-dot"></span>
-          PromptForge
-        </Link>
-      </div>
+    
 
       <div className="login-center">
         <motion.div
@@ -59,6 +54,10 @@ const Login = () => {
           animate="visible"
         >
           <p className="login-kicker mono">Welcome back</p>
+
+          <div className="login-logo">
+  <img src={logo} alt="PromptForge" />
+</div>
 
           <h1 className="login-title">Sign in to PromptForge</h1>
 

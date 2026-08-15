@@ -28,15 +28,17 @@
 }
 
 .login-logo {
-  display: inline-flex;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
+  margin: 18px 0 20px;
+}
 
-  font-size: 18px;
-  font-weight: 700;
-
-  color: var(--text);
-  letter-spacing: -0.02em;
+.login-logo img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
 }
 
 .login-center {
