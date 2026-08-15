@@ -1,5 +1,3 @@
-
-
 .workspace-section {
   padding: var(--space-xl) 0 var(--space-xxl);
 }
@@ -146,7 +144,10 @@
   color: var(--text-dim);
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .collection-item:hover {
@@ -263,7 +264,10 @@
   cursor: pointer;
 
   opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .prompt-item:hover .prompt-item-delete-btn,
@@ -881,12 +885,44 @@
   max-height: 320px;
   overflow-y: auto;
 
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: #17171a;
   padding: 18px 20px;
 }
+.response-panel-body::-webkit-scrollbar {
+  width: 5px;
+}
 
+.response-panel-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.response-panel-body::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+
+.response-panel-body:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.response-panel-body:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.response-panel-body:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.45);
+}
+
+.response-panel-body::-webkit-scrollbar-thumb:active {
+  background: rgba(16, 185, 129, 0.6);
+}
 .response-markdown {
   color: #d8d8dc;
   font-size: 14.5px;
@@ -1708,7 +1744,9 @@ h5.response-heading {
 }
 
 .workspace-shell .variable-field-input {
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .workspace-shell .variable-field-input:hover:not(:focus) {
@@ -1733,7 +1771,8 @@ h5.response-heading {
   border-radius: inherit;
   pointer-events: none;
 
-  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.35),
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 185, 129, 0.35),
     0 0 26px rgba(16, 185, 129, 0.08);
   opacity: 0;
   transition: opacity 0.18s ease;
