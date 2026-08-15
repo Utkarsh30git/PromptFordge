@@ -40,8 +40,11 @@ const GoogleLogin = () => {
         try {
           console.log("Google credential received");
 
-          const result = await axios.post(
-            "http://localhost:8000/api/auth/google",
+          
+          const API_URL = import.meta.env.VITE_API_URL;
+
+          await axios.post(
+            `${API_URL}/api/auth/google`,
             {
               credential: response.credential,
             },
@@ -49,7 +52,6 @@ const GoogleLogin = () => {
               withCredentials: true,
             }
           );
-
           console.log("Login successful:", result.data);
 
 
