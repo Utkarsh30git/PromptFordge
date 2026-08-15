@@ -245,14 +245,6 @@ The Prompt Library helps users manage and organize their prompts.
 
 ---
 
-## Installation
-
-### Clone Repository
-
-```bash
-git clone https://github.com/Utkarsh30git/PromptForge.git
-```
-
 ### Install Frontend
 
 ```bash
