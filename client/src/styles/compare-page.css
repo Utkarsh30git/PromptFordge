@@ -69,8 +69,8 @@
   background: var(--border-soft);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  overflow: hidden;
-
+  overflow: visible;
+  
   margin-bottom: 24px;
 }
 
